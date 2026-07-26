@@ -1,0 +1,123 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    // ---- users ----
+    match /users/{uid} {
+      allow read: if true;
+      // Profile doc is provisioned server-side (Cloud Function) on signup.
+      // Users may only update their own editable fields, never role/stats.
+      allow create: if false;
+      allow update: if isOwner(uid)
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.stats == resource.data.stats;
+      allow delete: if false;
+    }
+
+    // ---- catalog ----
+    match /catalogSeries/{seriesId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /catalogItems/{itemId} {
+      allow read: if resource.data.status == "approved" || isAdmin()
+        || (isSignedIn() && resource.data.createdBy == request.auth.uid);
+
+      // Admins can create/edit approved items directly.
+      allow create: if isAdmin()
+        || (isSignedIn() && request.resource.data.status == "pending"
+            && request.resource.data.createdBy == request.auth.uid);
+
+      // Only admins can mutate an already-approved item, or flip a pending
+      // suggestion's status (approve/reject). Regular users never write
+      // directly to an approved doc.
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ---- per-user collections ----
+    match /userCollections/{uid}/items/{itemId} {
+      allow read: if true;
+      allow write: if isOwner(uid);
+    }
+
+    // Arcade "sessions" (one visit/play session, with its total cost) that
+    // collection items can optionally be tagged with. Spend data is only
+    // visible to the owner, unlike the (public) collection items above.
+    match /userCollections/{uid}/sessions/{sessionId} {
+      allow read: if isOwner(uid);
+      allow write: if isOwner(uid);
+    }
+
+    // ---- price submissions (write-only from clients; aggregation is
+    // computed server-side by a Cloud Function trigger) ----
+    match /priceSubmissions/{submissionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.submittedBy == request.auth.uid
+        && request.resource.data.price is number
+        && request.resource.data.price > 0
+        && request.resource.data.status == "active"
+        && request.resource.data.flagged == false;
+      // Submissions are immutable once created except by an admin
+      // (moderation: flagging/excluding abusive entries).
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    match /priceAggregates/{itemId} {
+      allow read: if true;
+      allow write: if false; // Cloud Functions (Admin SDK) only.
+    }
+
+    // ---- trades ----
+    match /trades/{tradeId} {
+      allow read: if isSignedIn()
+        && (resource.data.initiatorUid == request.auth.uid
+            || resource.data.counterpartyUid == request.auth.uid);
+      // Trades are created/analyzed via the /api/trade/analyze Route
+      // Handler (Admin SDK) so fairnessScore can't be spoofed by clients.
+      allow create: if false;
+      allow update: if isSignedIn()
+        && (resource.data.initiatorUid == request.auth.uid
+            || resource.data.counterpartyUid == request.auth.uid)
+        && request.resource.data.fairnessScore == resource.data.fairnessScore
+        && request.resource.data.initiatorItems == resource.data.initiatorItems
+        && request.resource.data.counterpartyItems == resource.data.counterpartyItems;
+      allow delete: if false;
+    }
+
+    // ---- community posts ----
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && request.resource.data.authorUid == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.authorUid == request.auth.uid;
+      allow delete: if isSignedIn()
+        && (resource.data.authorUid == request.auth.uid || isAdmin());
+
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if isSignedIn()
+          && request.resource.data.authorUid == request.auth.uid;
+        allow update: if false;
+        allow delete: if isSignedIn()
+          && (resource.data.authorUid == request.auth.uid || isAdmin());
+      }
+    }
+  }
+}

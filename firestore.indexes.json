@@ -1,0 +1,23 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "priceSubmissions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "catalogItemId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "submittedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "catalogItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "seriesId", "order": "ASCENDING" },
+        { "fieldPath": "number", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
