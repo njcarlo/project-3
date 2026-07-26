@@ -1,0 +1,43 @@
+runConfig:
+  minInstances: 0
+
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyBc-eYbQ-Bub4Ki26un23eEb45EeBfTzlI
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: mezastar-collector.firebaseapp.com
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: mezastar-collector
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: mezastar-collector.firebasestorage.app
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "274237171798"
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:274237171798:web:e075aa17d5cfcf7034b3f7"
+    availability: [BUILD, RUNTIME]
+
+  - variable: FIREBASE_PROJECT_ID
+    value: mezastar-collector
+    availability: [BUILD, RUNTIME]
+
+  - variable: FIREBASE_CLIENT_EMAIL
+    value: firebase-adminsdk-fbsvc@mezastar-collector.iam.gserviceaccount.com
+    availability: [BUILD, RUNTIME]
+
+  - variable: FIREBASE_STORAGE_BUCKET
+    value: mezastar-collector.firebasestorage.app
+    availability: [BUILD, RUNTIME]
+
+  - variable: FIREBASE_PRIVATE_KEY
+    secret: FIREBASE_PRIVATE_KEY
+    availability: [BUILD, RUNTIME]
