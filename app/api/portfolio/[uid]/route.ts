@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase/admin";
-import { computePortfolioValue } from "@/lib/portfolio";
+import { computePortfolioValue, resolveShowcaseItems } from "@/lib/portfolio";
 import type { UserProfile } from "@/lib/types";
 
 export async function GET(
@@ -19,7 +19,11 @@ export async function GET(
     return NextResponse.json({ error: "Private" }, { status: 403 });
   }
 
-  const data = await computePortfolioValue(uid);
+  const [data, showcaseItems] = await Promise.all([
+    computePortfolioValue(uid),
+    resolveShowcaseItems(profile.showcaseItemIds ?? []),
+  ]);
+
   return NextResponse.json({
     profile: {
       displayName: profile.displayName,
@@ -27,5 +31,6 @@ export async function GET(
       bio: profile.bio,
     },
     ...data,
+    showcaseItems,
   });
 }

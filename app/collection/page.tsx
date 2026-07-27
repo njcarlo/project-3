@@ -19,6 +19,7 @@ import type {
   UserCollectionItem,
 } from "@/lib/types";
 import { RarityBadge } from "@/components/RarityBadge";
+import { PinShowcaseButton } from "@/components/PinShowcaseButton";
 
 interface Row extends UserCollectionItem {
   catalogItem: CatalogItem | null;
@@ -206,6 +207,12 @@ export default function CollectionPage() {
                         }
                         className="w-14 rounded-lg border border-card-border bg-background px-2 py-1 text-center text-sm"
                       />
+
+                      {row.catalogItem && (
+                        <PinShowcaseButton
+                          catalogItemId={row.catalogItem.id}
+                        />
+                      )}
 
                       <button
                         onClick={() => removeItem(row.id)}

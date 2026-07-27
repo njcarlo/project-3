@@ -1,30 +1,69 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { adminDb } from "@/lib/firebase/admin";
-import { computePortfolioValue } from "@/lib/portfolio";
+import { computePortfolioValue, resolveShowcaseItems } from "@/lib/portfolio";
 import { BreakdownBars } from "@/components/BreakdownBars";
 import { CopyLinkButton } from "@/components/CopyLinkButton";
+import { RarityBadge } from "@/components/RarityBadge";
 import type { UserProfile } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
+type Params = Promise<{ uid: string }>;
+
+async function loadProfile(uid: string) {
+  const snap = await adminDb.collection("users").doc(uid).get();
+  return snap.exists ? (snap.data() as UserProfile) : null;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
+  const { uid } = await params;
+  const profile = await loadProfile(uid);
+
+  if (!profile || profile.portfolioPublic === false) {
+    return { title: "Mezastar Collector" };
+  }
+
+  const title = `${profile.displayName}'s Mezastar collection`;
+  const description = profile.bio || "Check out this Mezastar tag collection.";
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: "profile" },
+    twitter: { card: "summary", title, description },
+  };
+}
+
+function memberSince(createdAt: unknown): string | null {
+  const date =
+    createdAt && typeof createdAt === "object" && "toDate" in createdAt
+      ? (createdAt as { toDate: () => Date }).toDate()
+      : null;
+  return date
+    ? date.toLocaleDateString(undefined, { year: "numeric", month: "long" })
+    : null;
+}
+
 export default async function PublicPortfolioPage({
   params,
 }: {
-  params: Promise<{ uid: string }>;
+  params: Params;
 }) {
   const { uid } = await params;
+  const profile = await loadProfile(uid);
 
-  const profileSnap = await adminDb.collection("users").doc(uid).get();
-
-  if (!profileSnap.exists) {
+  if (!profile) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-8">
         <p className="text-muted">This collector doesn&apos;t exist.</p>
       </div>
     );
   }
-
-  const profile = profileSnap.data() as UserProfile;
 
   if (profile.portfolioPublic === false) {
     return (
@@ -36,7 +75,14 @@ export default async function PublicPortfolioPage({
     );
   }
 
-  const data = await computePortfolioValue(uid);
+  const [data, showcaseItems] = await Promise.all([
+    computePortfolioValue(uid),
+    resolveShowcaseItems(profile.showcaseItemIds ?? []),
+  ]);
+
+  const featured = showcaseItems.length > 0 ? showcaseItems : data.topItems;
+  const featuredLabel = showcaseItems.length > 0 ? "Pinned favorites" : "Top tags";
+  const since = memberSince(profile.createdAt);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
@@ -56,8 +102,9 @@ export default async function PublicPortfolioPage({
           )}
           <div>
             <h1 className="text-xl font-semibold">{profile.displayName}</h1>
-            {profile.bio && (
-              <p className="text-sm text-muted">{profile.bio}</p>
+            {profile.bio && <p className="text-sm text-muted">{profile.bio}</p>}
+            {since && (
+              <p className="text-xs text-muted">Collecting since {since}</p>
             )}
           </div>
         </div>
@@ -90,11 +137,11 @@ export default async function PublicPortfolioPage({
             </div>
           </div>
 
-          {data.topItems.length > 0 && (
+          {featured.length > 0 && (
             <div>
-              <h2 className="mb-2 text-sm font-medium">Top tags</h2>
+              <h2 className="mb-2 text-sm font-medium">{featuredLabel}</h2>
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-                {data.topItems.map((item) => (
+                {featured.map((item) => (
                   <Link
                     key={item.catalogItemId}
                     href={`/catalog/${item.catalogItemId}`}
@@ -114,9 +161,9 @@ export default async function PublicPortfolioPage({
                     <p className="mt-1 truncate text-xs font-medium">
                       {item.name}
                     </p>
-                    <p className="text-xs text-muted">
-                      ¥{Math.round(item.value).toLocaleString()}
-                    </p>
+                    <div className="mt-1">
+                      <RarityBadge rarity={item.rarity} />
+                    </div>
                   </Link>
                 ))}
               </div>
