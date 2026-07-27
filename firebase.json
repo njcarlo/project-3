@@ -9,6 +9,19 @@
       "rules": "storage.rules"
     }
   ],
+  "hosting": {
+    "public": ".hosting-public",
+    "ignore": ["**/.*"],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "mezastar-collector",
+          "region": "asia-southeast1"
+        }
+      }
+    ]
+  },
   "functions": [
     {
       "source": "functions",
