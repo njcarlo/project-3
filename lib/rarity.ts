@@ -49,6 +49,8 @@ const RARITY_STYLES: Record<Rarity, RarityStyle> = {
   },
 };
 
+export const RARITY_OPTIONS = Object.keys(RARITY_STYLES) as Rarity[];
+
 export function getRarityStyle(rarity: string): RarityStyle {
   return (
     RARITY_STYLES[rarity as Rarity] ?? {

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { adminDb } from "@/lib/firebase/admin";
 import type { CatalogItem } from "@/lib/types";
 import { CatalogBrowser } from "@/components/CatalogBrowser";
@@ -20,11 +21,19 @@ export default async function CatalogPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Catalog</h1>
-        <p className="mt-1 text-muted">
-          {items.length} tags across the Stardust series.
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Catalog</h1>
+          <p className="mt-1 text-muted">
+            {items.length} tags across the Stardust series.
+          </p>
+        </div>
+        <Link
+          href="/catalog/propose"
+          className="rounded-full border border-card-border px-4 py-2 text-sm font-medium hover:bg-card"
+        >
+          Missing a tag?
+        </Link>
       </div>
 
       {items.length === 0 ? (
