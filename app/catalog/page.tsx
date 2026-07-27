@@ -35,7 +35,17 @@ export default async function CatalogPage() {
               href={`/catalog/${item.id}`}
               className="rounded border border-black/10 p-3 hover:border-black/30 dark:border-white/10 dark:hover:border-white/30"
             >
-              <div className="aspect-square w-full rounded bg-black/5 dark:bg-white/5" />
+              <div className="aspect-square w-full overflow-hidden rounded bg-black/5 dark:bg-white/5">
+                {item.imageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element -- external PokeAPI/Storage images, not worth Image config for MVP
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    className="h-full w-full object-contain"
+                    loading="lazy"
+                  />
+                )}
+              </div>
               <p className="mt-2 text-sm font-medium">{item.name}</p>
               <p className="text-xs text-black/50 dark:text-white/50">
                 {item.seriesName} · #{item.number} · {item.rarity}

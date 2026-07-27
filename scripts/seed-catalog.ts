@@ -6,6 +6,7 @@
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { extname, join } from "node:path";
 import { adminDb, adminStorage } from "../lib/firebase/admin";
+import { getArtworkUrl } from "../lib/pokeapi";
 
 interface SeedItem {
   number: string;
@@ -29,26 +30,35 @@ interface SeedFile {
 const SEED_DIR = join(__dirname, "..", "seed");
 const IMAGES_DIR = join(SEED_DIR, "images");
 
-async function uploadImageIfPresent(
+// Prefers a hand-collected disc scan if one has been placed under
+// seed/images/; otherwise falls back to the Pokemon's official artwork from
+// PokeAPI so every catalog item has a real (and legally clean) image without
+// needing licensed Mezastar tag scans.
+async function resolveImageUrl(
   seriesId: string,
   number: string,
-  imageFile: string
+  imageFile: string,
+  pokemonName: string
 ): Promise<string> {
   const localPath = join(IMAGES_DIR, imageFile);
-  if (!existsSync(localPath)) {
-    console.warn(`  ! image not found, skipping upload: ${localPath}`);
-    return "";
+  if (existsSync(localPath)) {
+    const bucket = adminStorage.bucket();
+    const destination = `catalog/${seriesId}/${number}${extname(imageFile)}`;
+    await bucket.upload(localPath, {
+      destination,
+      metadata: { cacheControl: "public, max-age=31536000" },
+    });
+    const file = bucket.file(destination);
+    await file.makePublic();
+    return `https://storage.googleapis.com/${bucket.name}/${destination}`;
   }
 
-  const bucket = adminStorage.bucket();
-  const destination = `catalog/${seriesId}/${number}${extname(imageFile)}`;
-  await bucket.upload(localPath, {
-    destination,
-    metadata: { cacheControl: "public, max-age=31536000" },
-  });
-  const file = bucket.file(destination);
-  await file.makePublic();
-  return `https://storage.googleapis.com/${bucket.name}/${destination}`;
+  const artworkUrl = await getArtworkUrl(pokemonName);
+  if (!artworkUrl) {
+    console.warn(`  ! no local image or PokeAPI artwork for: ${pokemonName}`);
+    return "";
+  }
+  return artworkUrl;
 }
 
 async function importSeriesFile(filePath: string) {
@@ -78,10 +88,11 @@ async function importSeriesFile(filePath: string) {
     const chunk = items.slice(i, i + batchSize);
 
     for (const item of chunk) {
-      const imageUrl = await uploadImageIfPresent(
+      const imageUrl = await resolveImageUrl(
         series.id,
         item.number,
-        item.imageFile
+        item.imageFile,
+        item.name
       );
       const docId = `${series.id}-${item.number}`;
       const ref = adminDb.collection("catalogItems").doc(docId);

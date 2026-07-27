@@ -31,7 +31,16 @@ export default async function CatalogItemPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <div className="aspect-square w-full max-w-xs rounded bg-black/5 dark:bg-white/5" />
+      <div className="aspect-square w-full max-w-xs overflow-hidden rounded bg-black/5 dark:bg-white/5">
+        {item.imageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element -- external PokeAPI/Storage images, not worth Image config for MVP
+          <img
+            src={item.imageUrl}
+            alt={item.name}
+            className="h-full w-full object-contain"
+          />
+        )}
+      </div>
 
       <div className="mt-4 flex items-center gap-2">
         <h1 className="text-2xl font-semibold">{item.name}</h1>
