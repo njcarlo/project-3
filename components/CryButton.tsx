@@ -27,7 +27,7 @@ export function CryButton({ pokemonName }: { pokemonName: string }) {
       onClick={play}
       disabled={status === "loading"}
       title={status === "error" ? "Cry not found" : "Play cry"}
-      className="rounded border border-black/20 px-2 py-1 text-sm disabled:opacity-50 dark:border-white/20"
+      className="rounded-full border border-card-border px-2.5 py-1 text-sm hover:bg-card disabled:opacity-50"
     >
       {status === "loading" ? "…" : status === "error" ? "🔇" : "🔊"}
     </button>

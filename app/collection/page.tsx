@@ -18,6 +18,7 @@ import type {
   CollectionSession,
   UserCollectionItem,
 } from "@/lib/types";
+import { RarityBadge } from "@/components/RarityBadge";
 
 interface Row extends UserCollectionItem {
   catalogItem: CatalogItem | null;
@@ -89,9 +90,9 @@ export default function CollectionPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-8">
-        <p>
-          <Link href="/login" className="underline">
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <p className="text-muted">
+          <Link href="/login" className="text-accent underline">
             Sign in
           </Link>{" "}
           to see your collection.
@@ -114,15 +115,17 @@ export default function CollectionPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-6 text-xl font-semibold">My collection</h1>
+    <div className="mx-auto max-w-3xl px-4 py-10">
+      <h1 className="mb-8 text-3xl font-bold tracking-tight">
+        My collection
+      </h1>
 
       {rows === null ? (
-        <p>Loading...</p>
+        <p className="text-muted">Loading...</p>
       ) : rows.length === 0 ? (
-        <p className="text-black/60 dark:text-white/60">
+        <p className="text-muted">
           Nothing here yet.{" "}
-          <Link href="/catalog" className="underline">
+          <Link href="/catalog" className="text-accent underline">
             Browse the catalog
           </Link>{" "}
           to add items.
@@ -139,12 +142,12 @@ export default function CollectionPage() {
                 : null;
 
             return (
-              <section key={key}>
-                <div className="mb-2 flex items-baseline justify-between">
-                  <h2 className="font-medium">
+              <section key={key} className="card overflow-hidden rounded-xl">
+                <div className="flex items-baseline justify-between border-b border-card-border px-4 py-3">
+                  <h2 className="font-semibold">
                     {session ? session.label : "No session"}
                   </h2>
-                  <div className="text-xs text-black/50 dark:text-white/50">
+                  <div className="text-xs text-muted">
                     {session?.date && <span>{session.date} · </span>}
                     {session?.cost != null && (
                       <span>
@@ -156,57 +159,63 @@ export default function CollectionPage() {
                   </div>
                 </div>
 
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-black/10 text-left dark:border-white/10">
-                      <th className="py-2">Item</th>
-                      <th className="py-2">Condition</th>
-                      <th className="py-2">Qty</th>
-                      <th className="py-2"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {groupRows.map((row) => (
-                      <tr
-                        key={row.id}
-                        className="border-b border-black/5 dark:border-white/5"
-                      >
-                        <td className="py-2">
-                          {row.catalogItem ? (
-                            <Link
-                              href={`/catalog/${row.catalogItem.id}`}
-                              className="underline"
-                            >
-                              {row.catalogItem.name}
-                            </Link>
-                          ) : (
-                            "Unknown item"
-                          )}
-                        </td>
-                        <td className="py-2 capitalize">{row.condition}</td>
-                        <td className="py-2">
-                          <input
-                            type="number"
-                            min={1}
-                            value={row.quantity}
-                            onChange={(e) =>
-                              updateQuantity(row.id, Number(e.target.value))
-                            }
-                            className="w-16 rounded border border-black/20 px-1 dark:border-white/20"
+                <div className="divide-y divide-card-border">
+                  {groupRows.map((row) => (
+                    <div
+                      key={row.id}
+                      className="flex items-center gap-3 px-4 py-3"
+                    >
+                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-background">
+                        {row.catalogItem?.imageUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={row.catalogItem.imageUrl}
+                            alt={row.catalogItem.name}
+                            className="h-full w-full object-contain"
                           />
-                        </td>
-                        <td className="py-2">
-                          <button
-                            onClick={() => removeItem(row.id)}
-                            className="text-red-600 underline"
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        {row.catalogItem ? (
+                          <Link
+                            href={`/catalog/${row.catalogItem.id}`}
+                            className="truncate font-medium hover:text-accent"
                           >
-                            Remove
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                            {row.catalogItem.name}
+                          </Link>
+                        ) : (
+                          <span className="text-muted">Unknown item</span>
+                        )}
+                        <div className="mt-1 flex items-center gap-2">
+                          {row.catalogItem && (
+                            <RarityBadge rarity={row.catalogItem.rarity} />
+                          )}
+                          <span className="text-xs capitalize text-muted">
+                            {row.condition}
+                          </span>
+                        </div>
+                      </div>
+
+                      <input
+                        type="number"
+                        min={1}
+                        value={row.quantity}
+                        onChange={(e) =>
+                          updateQuantity(row.id, Number(e.target.value))
+                        }
+                        className="w-14 rounded-lg border border-card-border bg-background px-2 py-1 text-center text-sm"
+                      />
+
+                      <button
+                        onClick={() => removeItem(row.id)}
+                        className="text-xs text-red-500 hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </section>
             );
           })}

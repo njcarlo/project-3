@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { adminDb } from "@/lib/firebase/admin";
 import type { CatalogItem } from "@/lib/types";
+import { QuickAddButton } from "@/components/QuickAddButton";
+import { RarityBadge } from "@/components/RarityBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -19,37 +21,46 @@ export default async function CatalogPage() {
   const items = await getApprovedItems();
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <h1 className="mb-6 text-xl font-semibold">Catalog</h1>
+    <div className="mx-auto max-w-6xl px-4 py-10">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Catalog</h1>
+        <p className="mt-1 text-muted">
+          {items.length} tags across the Stardust series.
+        </p>
+      </div>
 
       {items.length === 0 ? (
-        <p className="text-black/60 dark:text-white/60">
+        <p className="text-muted">
           No catalog items yet. Run <code>npm run seed</code> after adding
           real Mezastar data to <code>seed/series-01.json</code>.
         </p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {items.map((item) => (
             <Link
               key={item.id}
               href={`/catalog/${item.id}`}
-              className="rounded border border-black/10 p-3 hover:border-black/30 dark:border-white/10 dark:hover:border-white/30"
+              className="card group relative overflow-hidden rounded-xl p-3 transition-all hover:-translate-y-1 hover:shadow-lg"
             >
-              <div className="aspect-square w-full overflow-hidden rounded bg-black/5 dark:bg-white/5">
+              <QuickAddButton catalogItemId={item.id} />
+              <div className="aspect-square w-full overflow-hidden rounded-lg bg-background">
                 {item.imageUrl && (
                   // eslint-disable-next-line @next/next/no-img-element -- external PokeAPI/Storage images, not worth Image config for MVP
                   <img
                     src={item.imageUrl}
                     alt={item.name}
-                    className="h-full w-full object-contain"
+                    className="h-full w-full object-contain p-1 transition-transform group-hover:scale-105"
                     loading="lazy"
                   />
                 )}
               </div>
-              <p className="mt-2 text-sm font-medium">{item.name}</p>
-              <p className="text-xs text-black/50 dark:text-white/50">
-                {item.seriesName} · #{item.number} · {item.rarity}
-              </p>
+              <p className="mt-3 truncate text-sm font-medium">{item.name}</p>
+              <div className="mt-1 flex items-center justify-between">
+                <span className="text-xs text-muted">
+                  {item.seriesName.replace("Mezastar ", "")} · #{item.number}
+                </span>
+                <RarityBadge rarity={item.rarity} />
+              </div>
             </Link>
           ))}
         </div>

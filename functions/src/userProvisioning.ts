@@ -18,6 +18,7 @@ export const provisionUserProfile = functions.auth
         role: "user",
         showcaseItemIds: [],
         stats: { totalItems: 0, totalValue: 0 },
+        portfolioPublic: true,
         createdAt: FieldValue.serverTimestamp(),
       });
   });

@@ -53,7 +53,7 @@ export function AddToCollectionForm({
     return (
       <button
         onClick={() => router.push("/login")}
-        className="rounded bg-black px-4 py-2 text-sm text-white dark:bg-white dark:text-black"
+        className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-foreground"
       >
         Add to collection
       </button>
@@ -64,7 +64,7 @@ export function AddToCollectionForm({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded bg-black px-4 py-2 text-sm text-white dark:bg-white dark:text-black"
+        className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-foreground"
       >
         Add to collection
       </button>
@@ -116,27 +116,27 @@ export function AddToCollectionForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-3 rounded border border-black/10 p-3 text-sm dark:border-white/10"
+      className="card flex flex-col gap-3 rounded-xl p-4 text-sm"
     >
       <div className="flex items-center gap-2">
-        <label className="w-20 text-black/60 dark:text-white/60">Qty</label>
+        <label className="w-20 text-muted">Qty</label>
         <input
           type="number"
           min={1}
           value={quantity}
           onChange={(e) => setQuantity(Number(e.target.value))}
-          className="w-20 rounded border border-black/20 px-2 py-1 dark:border-white/20"
+          className="w-20 rounded-lg border border-card-border bg-background px-2 py-1"
         />
       </div>
 
       <div className="flex items-center gap-2">
-        <label className="w-20 text-black/60 dark:text-white/60">
+        <label className="w-20 text-muted">
           Condition
         </label>
         <select
           value={condition}
           onChange={(e) => setCondition(e.target.value as ItemCondition)}
-          className="rounded border border-black/20 px-2 py-1 dark:border-white/20"
+          className="rounded-lg border border-card-border bg-background px-2 py-1"
         >
           <option value="mint">Mint</option>
           <option value="good">Good</option>
@@ -146,7 +146,7 @@ export function AddToCollectionForm({
       </div>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-black/60 dark:text-white/60">
+        <legend className="mb-1 text-muted">
           Arcade session
         </legend>
 
@@ -168,9 +168,7 @@ export function AddToCollectionForm({
             />
             {s.label}
             {s.cost != null && (
-              <span className="text-black/50 dark:text-white/50">
-                (¥{s.cost.toLocaleString()})
-              </span>
+              <span className="text-muted">(¥{s.cost.toLocaleString()})</span>
             )}
           </label>
         ))}
@@ -191,7 +189,7 @@ export function AddToCollectionForm({
               placeholder="Session name (optional)"
               value={newSessionLabel}
               onChange={(e) => setNewSessionLabel(e.target.value)}
-              className="rounded border border-black/20 px-2 py-1 dark:border-white/20"
+              className="rounded-lg border border-card-border bg-background px-2 py-1"
             />
             <input
               type="number"
@@ -199,7 +197,7 @@ export function AddToCollectionForm({
               placeholder="What did this session cost? (JPY)"
               value={newSessionCost}
               onChange={(e) => setNewSessionCost(e.target.value)}
-              className="rounded border border-black/20 px-2 py-1 dark:border-white/20"
+              className="rounded-lg border border-card-border bg-background px-2 py-1"
             />
           </div>
         )}
@@ -209,7 +207,7 @@ export function AddToCollectionForm({
         <button
           type="submit"
           disabled={busy}
-          className="rounded bg-black px-3 py-1 text-white disabled:opacity-50 dark:bg-white dark:text-black"
+          className="rounded-full bg-accent px-4 py-1.5 font-medium text-accent-foreground disabled:opacity-50"
         >
           {busy ? "Adding..." : "Add to collection"}
         </button>

@@ -48,7 +48,7 @@ export function SubmitPriceForm({ catalogItemId }: { catalogItemId: string }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded border border-black/20 px-4 py-2 text-sm dark:border-white/20"
+        className="rounded-full border border-card-border px-4 py-2 text-sm font-medium hover:bg-card"
       >
         {done ? "Submit another price" : "Submit a price"}
       </button>
@@ -56,7 +56,10 @@ export function SubmitPriceForm({ catalogItemId }: { catalogItemId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2 text-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="card flex flex-col gap-2 rounded-xl p-4 text-sm"
+    >
       <input
         type="number"
         required
@@ -64,12 +67,12 @@ export function SubmitPriceForm({ catalogItemId }: { catalogItemId: string }) {
         placeholder="Price (JPY)"
         value={price}
         onChange={(e) => setPrice(e.target.value)}
-        className="rounded border border-black/20 px-2 py-1 dark:border-white/20"
+        className="rounded-lg border border-card-border bg-background px-2 py-1"
       />
       <select
         value={type}
         onChange={(e) => setType(e.target.value as PriceSubmissionType)}
-        className="rounded border border-black/20 px-2 py-1 dark:border-white/20"
+        className="rounded-lg border border-card-border bg-background px-2 py-1"
       >
         <option value="paid">What I paid</option>
         <option value="estimated_value">My estimated value</option>
@@ -79,13 +82,13 @@ export function SubmitPriceForm({ catalogItemId }: { catalogItemId: string }) {
         placeholder="Source (e.g. Mercari, local shop)"
         value={sourceNote}
         onChange={(e) => setSourceNote(e.target.value)}
-        className="rounded border border-black/20 px-2 py-1 dark:border-white/20"
+        className="rounded-lg border border-card-border bg-background px-2 py-1"
       />
       <div className="flex gap-2">
         <button
           type="submit"
           disabled={busy}
-          className="rounded bg-black px-3 py-1 text-white disabled:opacity-50 dark:bg-white dark:text-black"
+          className="rounded-full bg-accent px-4 py-1.5 font-medium text-accent-foreground disabled:opacity-50"
         >
           Submit
         </button>

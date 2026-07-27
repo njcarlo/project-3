@@ -116,6 +116,9 @@ export interface UserProfile {
   role: UserRole;
   showcaseItemIds: string[];
   stats: { totalItems: number; totalValue: number };
+  // Whether /u/{uid} is viewable by anyone with the link. Defaults to true
+  // for profiles provisioned without this field.
+  portfolioPublic?: boolean;
   createdAt: number;
 }
 
