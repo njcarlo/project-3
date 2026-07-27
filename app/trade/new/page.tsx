@@ -220,16 +220,18 @@ export default function NewTradePage() {
                 </div>
                 <div className="text-center">
                   <p className="text-muted">Fairness</p>
-                  <p className="text-lg font-bold">
+                  <p
+                    className={`text-lg font-bold ${
+                      Number.isFinite(analysis.fairnessScore) &&
+                      Math.abs(analysis.fairnessScore - 1) <= 0.1
+                        ? "text-emerald-500"
+                        : "text-amber-500"
+                    }`}
+                  >
                     {Number.isFinite(analysis.fairnessScore)
                       ? `${(analysis.fairnessScore * 100).toFixed(0)}%`
                       : "—"}
                   </p>
-                  {analysis.lowConfidence && (
-                    <p className="text-xs text-amber-500">
-                      low price data — take with a grain of salt
-                    </p>
-                  )}
                 </div>
                 <div className="text-right">
                   <p className="text-muted">You get</p>
@@ -238,6 +240,29 @@ export default function NewTradePage() {
                   </p>
                 </div>
               </div>
+
+              <div className="mt-4 flex h-2 overflow-hidden rounded-full bg-background">
+                {(() => {
+                  const total = analysis.initiator.total + analysis.counterparty.total;
+                  const givePct = total > 0 ? (analysis.initiator.total / total) * 100 : 50;
+                  return (
+                    <>
+                      <div className="h-2 bg-accent" style={{ width: `${givePct}%` }} />
+                      <div
+                        className="h-2 bg-emerald-400"
+                        style={{ width: `${100 - givePct}%` }}
+                      />
+                    </>
+                  );
+                })()}
+              </div>
+
+              {analysis.lowConfidence && (
+                <p className="mt-3 text-xs text-amber-500">
+                  ⚠ Low price data on one or both sides — take this with a
+                  grain of salt.
+                </p>
+              )}
             </div>
           )}
 

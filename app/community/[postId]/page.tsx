@@ -104,7 +104,12 @@ export default function PostDetailPage() {
 
       <div className="card mt-4 rounded-xl p-5">
         <h1 className="text-2xl font-bold tracking-tight">{post.title}</h1>
-        <p className="mt-1 text-xs text-muted">{authorName}</p>
+        <div className="mt-2 flex items-center gap-2">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-semibold text-accent-foreground">
+            {authorName.charAt(0).toUpperCase()}
+          </div>
+          <p className="text-xs text-muted">{authorName}</p>
+        </div>
         <p className="mt-4 whitespace-pre-wrap text-sm">{post.body}</p>
       </div>
 
@@ -113,14 +118,20 @@ export default function PostDetailPage() {
       </h2>
 
       <div className="flex flex-col gap-3">
-        {comments.map((c) => (
-          <div key={c.id} className="card rounded-xl p-3 text-sm">
-            <p className="text-xs font-medium text-muted">
-              {commentNames[c.authorUid] ?? "Collector"}
-            </p>
-            <p className="mt-1 whitespace-pre-wrap">{c.body}</p>
-          </div>
-        ))}
+        {comments.map((c) => {
+          const name = commentNames[c.authorUid] ?? "Collector";
+          return (
+            <div key={c.id} className="card flex gap-2 rounded-xl p-3 text-sm">
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold text-accent-foreground">
+                {name.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium text-muted">{name}</p>
+                <p className="mt-1 whitespace-pre-wrap">{c.body}</p>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {user ? (

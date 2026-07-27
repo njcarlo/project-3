@@ -66,24 +66,32 @@ export default function CommunityPage() {
       {posts === null ? (
         <p className="text-muted">Loading...</p>
       ) : posts.length === 0 ? (
-        <p className="text-muted">No posts yet — be the first.</p>
+        <div className="card rounded-xl p-8 text-center">
+          <p className="text-muted">No posts yet — be the first.</p>
+        </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {posts.map((post) => (
-            <Link
-              key={post.id}
-              href={`/community/${post.id}`}
-              className="card block rounded-xl p-4 transition-colors hover:bg-background"
-            >
-              <h2 className="font-semibold">{post.title}</h2>
-              <p className="mt-1 line-clamp-2 text-sm text-muted">
-                {post.body}
-              </p>
-              <p className="mt-2 text-xs text-muted">
-                {authorNames[post.authorUid] ?? "Collector"}
-              </p>
-            </Link>
-          ))}
+          {posts.map((post) => {
+            const name = authorNames[post.authorUid] ?? "Collector";
+            return (
+              <Link
+                key={post.id}
+                href={`/community/${post.id}`}
+                className="card flex gap-3 rounded-xl p-4 transition-all hover:-translate-y-0.5 hover:shadow-lg"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-accent-foreground">
+                  {name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h2 className="font-semibold">{post.title}</h2>
+                  <p className="mt-1 line-clamp-2 text-sm text-muted">
+                    {post.body}
+                  </p>
+                  <p className="mt-2 text-xs text-muted">{name}</p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

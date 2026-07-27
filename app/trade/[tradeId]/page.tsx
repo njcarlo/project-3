@@ -153,10 +153,22 @@ export default function TradeDetailPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Trade</h1>
-          <p className="mt-1 text-sm text-muted">
-            {names.initiator} ↔ {names.counterparty} ·{" "}
-            <span className="capitalize">{trade.status}</span>
-          </p>
+          <div className="mt-1 flex items-center gap-2 text-sm text-muted">
+            <span>
+              {names.initiator} ↔ {names.counterparty}
+            </span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${
+                trade.status === "accepted"
+                  ? "bg-emerald-500/15 text-emerald-500"
+                  : trade.status === "declined"
+                    ? "bg-red-500/15 text-red-500"
+                    : "bg-accent/15 text-accent"
+              }`}
+            >
+              {trade.status}
+            </span>
+          </div>
         </div>
         <TradeActions
           tradeId={trade.id}

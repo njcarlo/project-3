@@ -5,6 +5,7 @@ import { computePortfolioValue, resolveShowcaseItems } from "@/lib/portfolio";
 import { BreakdownBars } from "@/components/BreakdownBars";
 import { CopyLinkButton } from "@/components/CopyLinkButton";
 import { RarityBadge } from "@/components/RarityBadge";
+import { StatCard } from "@/components/StatCard";
 import type { UserProfile } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -85,57 +86,60 @@ export default async function PublicPortfolioPage({
   const since = memberSince(profile.createdAt);
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <div className="mb-8 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          {profile.photoURL ? (
-            // eslint-disable-next-line @next/next/no-img-element -- external avatar URL
-            <img
-              src={profile.photoURL}
-              alt={profile.displayName}
-              className="h-12 w-12 rounded-full object-cover"
-            />
-          ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-lg font-semibold text-accent-foreground">
-              {profile.displayName.charAt(0).toUpperCase()}
-            </div>
-          )}
-          <div>
-            <h1 className="text-xl font-semibold">{profile.displayName}</h1>
-            {profile.bio && <p className="text-sm text-muted">{profile.bio}</p>}
-            {since && (
-              <p className="text-xs text-muted">Collecting since {since}</p>
+    <div>
+      <div
+        className="relative overflow-hidden border-b border-card-border"
+        style={{
+          background:
+            "radial-gradient(500px circle at 15% 0%, var(--accent), transparent 60%)",
+        }}
+      >
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-10">
+          <div className="flex items-center gap-4">
+            {profile.photoURL ? (
+              // eslint-disable-next-line @next/next/no-img-element -- external avatar URL
+              <img
+                src={profile.photoURL}
+                alt={profile.displayName}
+                className="h-16 w-16 rounded-full object-cover ring-4 ring-background"
+              />
+            ) : (
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent text-2xl font-semibold text-accent-foreground ring-4 ring-background">
+                {profile.displayName.charAt(0).toUpperCase()}
+              </div>
             )}
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">
+                {profile.displayName}
+              </h1>
+              {profile.bio && <p className="text-sm text-muted">{profile.bio}</p>}
+              {since && (
+                <p className="text-xs text-muted">Collecting since {since}</p>
+              )}
+            </div>
           </div>
+          <CopyLinkButton path={`/u/${uid}`} />
         </div>
-        <CopyLinkButton path={`/u/${uid}`} />
       </div>
 
-      {data.totalItems === 0 ? (
-        <p className="text-muted">This collection is empty so far.</p>
-      ) : (
-        <div className="flex flex-col gap-8">
-          <div className="flex gap-8">
-            <div>
-              <p className="text-xs uppercase text-muted">Total value</p>
-              <p className="text-2xl font-semibold">
-                ¥{Math.round(data.totalValue).toLocaleString()}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs uppercase text-muted">Items</p>
-              <p className="text-2xl font-semibold">{data.totalItems}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase text-muted">Avg per item</p>
-              <p className="text-2xl font-semibold">
-                ¥
-                {Math.round(
+      <div className="mx-auto max-w-3xl px-4 py-8">
+        {data.totalItems === 0 ? (
+          <p className="text-muted">This collection is empty so far.</p>
+        ) : (
+          <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <StatCard
+                label="Total value"
+                value={`¥${Math.round(data.totalValue).toLocaleString()}`}
+              />
+              <StatCard label="Items" value={String(data.totalItems)} />
+              <StatCard
+                label="Avg per item"
+                value={`¥${Math.round(
                   data.totalValue / data.totalItems
-                ).toLocaleString()}
-              </p>
+                ).toLocaleString()}`}
+              />
             </div>
-          </div>
 
           {featured.length > 0 && (
             <div>
@@ -170,21 +174,22 @@ export default async function PublicPortfolioPage({
             </div>
           )}
 
-          {data.byRarity.length > 0 && (
-            <div>
-              <h2 className="mb-2 text-sm font-medium">Value by rarity</h2>
-              <BreakdownBars rows={data.byRarity} labelKey="rarity" />
-            </div>
-          )}
+            {data.byRarity.length > 0 && (
+              <div className="card rounded-xl p-5">
+                <h2 className="mb-4 text-sm font-semibold">Value by rarity</h2>
+                <BreakdownBars rows={data.byRarity} labelKey="rarity" colorByRarity />
+              </div>
+            )}
 
-          {data.bySeries.length > 0 && (
-            <div>
-              <h2 className="mb-2 text-sm font-medium">Value by series</h2>
-              <BreakdownBars rows={data.bySeries} labelKey="series" />
-            </div>
-          )}
-        </div>
-      )}
+            {data.bySeries.length > 0 && (
+              <div className="card rounded-xl p-5">
+                <h2 className="mb-4 text-sm font-semibold">Value by series</h2>
+                <BreakdownBars rows={data.bySeries} labelKey="series" />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
