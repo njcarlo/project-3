@@ -21,6 +21,7 @@ import { auth } from "@/lib/firebase/client";
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  isAdmin: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
@@ -32,11 +33,18 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    return onAuthStateChanged(auth, (nextUser) => {
+    return onAuthStateChanged(auth, async (nextUser) => {
       setUser(nextUser);
       setLoading(false);
+      if (nextUser) {
+        const token = await nextUser.getIdTokenResult();
+        setIsAdmin(token.claims.admin === true);
+      } else {
+        setIsAdmin(false);
+      }
     });
   }, []);
 
@@ -44,6 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       loading,
+      isAdmin,
       signInWithGoogle: async () => {
         await signInWithPopup(auth, new GoogleAuthProvider());
       },
@@ -57,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await firebaseSignOut(auth);
       },
     }),
-    [user, loading]
+    [user, loading, isAdmin]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

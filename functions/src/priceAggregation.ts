@@ -12,13 +12,15 @@ interface HistoryEntry {
 }
 
 // Recomputes priceAggregates/{catalogItemId} from the latest active
-// submissions whenever a new one comes in. Trimmed mean guards against a
-// single outlier submission; median is already robust to that on its own.
+// submissions whenever one is created, edited, or an admin flags/unflags it
+// (onWrite covers all three -- flagging needs to actually move the average,
+// not just mark the doc). Trimmed mean guards against a single outlier
+// submission; median is already robust to that on its own.
 export const aggregatePriceSubmission = functions.firestore
   .document("priceSubmissions/{submissionId}")
-  .onCreate(async (snap) => {
-    const submission = snap.data();
-    const catalogItemId = submission.catalogItemId as string | undefined;
+  .onWrite(async (change) => {
+    const submission = change.after.exists ? change.after.data() : change.before.data();
+    const catalogItemId = submission?.catalogItemId as string | undefined;
     if (!catalogItemId) return;
 
     const db = getFirestore();
@@ -51,7 +53,16 @@ export const aggregatePriceSubmission = functions.firestore
       }
     }
 
-    if (prices.length === 0) return;
+    if (prices.length === 0) {
+      // Last remaining submission for this item just got flagged/excluded --
+      // clear the aggregate rather than leaving a stale average behind.
+      await db.collection("priceAggregates").doc(catalogItemId).delete();
+      await db
+        .collection("catalogItems")
+        .doc(catalogItemId)
+        .set({ lastPriceAggregate: null }, { merge: true });
+      return;
+    }
 
     const sorted = [...prices].sort((a, b) => a - b);
     const trimCount = Math.floor(sorted.length * 0.05);

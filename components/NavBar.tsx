@@ -13,8 +13,11 @@ const LINKS = [
 ];
 
 export function NavBar() {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, isAdmin, signOut } = useAuth();
   const pathname = usePathname();
+  const links = isAdmin
+    ? [...LINKS, { href: "/admin/prices", label: "Admin" }]
+    : LINKS;
 
   return (
     <header className="sticky top-0 z-10 border-b border-card-border bg-background/80 backdrop-blur-md">
@@ -27,7 +30,7 @@ export function NavBar() {
         </Link>
 
         <div className="flex items-center gap-1 text-sm">
-          {LINKS.map((link) => {
+          {links.map((link) => {
             const active = pathname === link.href;
             return (
               <Link
