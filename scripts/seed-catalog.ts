@@ -7,6 +7,7 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { extname, join } from "node:path";
 import { adminDb, adminStorage } from "../lib/firebase/admin";
 import { getArtworkUrl } from "../lib/pokeapi";
+import { getOfficialTagImageUrl } from "../lib/mezastarImages";
 
 interface SeedItem {
   number: string;
@@ -30,10 +31,11 @@ interface SeedFile {
 const SEED_DIR = join(__dirname, "..", "seed");
 const IMAGES_DIR = join(SEED_DIR, "images");
 
-// Prefers a hand-collected disc scan if one has been placed under
-// seed/images/; otherwise falls back to the Pokemon's official artwork from
-// PokeAPI so every catalog item has a real (and legally clean) image without
-// needing licensed Mezastar tag scans.
+// Priority: 1) a hand-collected local override under seed/images/,
+// 2) the actual Mezastar disc art hotlinked from the official site's CDN,
+// 3) the Pokemon's official artwork from PokeAPI as a last-resort fallback
+// so every item still gets a real image even if the official CDN path
+// doesn't resolve for it.
 async function resolveImageUrl(
   seriesId: string,
   number: string,
@@ -53,11 +55,23 @@ async function resolveImageUrl(
     return `https://storage.googleapis.com/${bucket.name}/${destination}`;
   }
 
+  const versionMatch = seriesId.match(/stardust-(\d+)/);
+  if (versionMatch) {
+    const officialUrl = await getOfficialTagImageUrl(
+      Number(versionMatch[1]),
+      number
+    );
+    if (officialUrl) return officialUrl;
+  }
+
   const artworkUrl = await getArtworkUrl(pokemonName);
   if (!artworkUrl) {
-    console.warn(`  ! no local image or PokeAPI artwork for: ${pokemonName}`);
+    console.warn(`  ! no image found at all for: ${pokemonName}`);
     return "";
   }
+  console.warn(
+    `  ! no official Mezastar art for ${pokemonName} (${seriesId}-${number}), using PokeAPI artwork`
+  );
   return artworkUrl;
 }
 

@@ -7,75 +7,495 @@
     "coverImageUrl": ""
   },
   "items": [
-    { "number": "001", "name": "Mewtwo", "rarity": "secret_rare", "imageFile": "stardust-1/001-mewtwo.png", "notes": "Superstar" },
-    { "number": "002", "name": "Mew", "rarity": "secret_rare", "imageFile": "stardust-1/002-mew.png", "notes": "Superstar" },
-    { "number": "003", "name": "Zacian", "rarity": "secret_rare", "imageFile": "stardust-1/003-zacian.png", "notes": "Superstar" },
-    { "number": "004", "name": "Zamazenta", "rarity": "secret_rare", "imageFile": "stardust-1/004-zamazenta.png", "notes": "Superstar" },
-    { "number": "005", "name": "Tyranitar", "rarity": "secret_rare", "imageFile": "stardust-1/005-tyranitar.png", "notes": "Superstar" },
-    { "number": "006", "name": "Metagross", "rarity": "secret_rare", "imageFile": "stardust-1/006-metagross.png", "notes": "Superstar" },
-    { "number": "007", "name": "Miraidon", "rarity": "secret_rare", "imageFile": "stardust-1/007-miraidon.png", "notes": "Superstar" },
-    { "number": "008", "name": "Venusaur", "rarity": "secret_rare", "imageFile": "stardust-1/008-venusaur.png", "notes": "Superstar" },
-    { "number": "009", "name": "Charizard", "rarity": "secret_rare", "imageFile": "stardust-1/009-charizard.png", "notes": "Superstar" },
-    { "number": "010", "name": "Blastoise", "rarity": "secret_rare", "imageFile": "stardust-1/010-blastoise.png", "notes": "Superstar" },
-    { "number": "011", "name": "Vaporeon", "rarity": "super_rare", "imageFile": "stardust-1/011-vaporeon.png", "notes": "Star" },
-    { "number": "012", "name": "Flareon", "rarity": "super_rare", "imageFile": "stardust-1/012-flareon.png", "notes": "Star" },
-    { "number": "013", "name": "Umbreon", "rarity": "super_rare", "imageFile": "stardust-1/013-umbreon.png", "notes": "Star" },
-    { "number": "014", "name": "Glaceon", "rarity": "super_rare", "imageFile": "stardust-1/014-glaceon.png", "notes": "Star" },
-    { "number": "015", "name": "Pidgeot", "rarity": "super_rare", "imageFile": "stardust-1/015-pidgeot.png", "notes": "Star" },
-    { "number": "016", "name": "Gengar", "rarity": "super_rare", "imageFile": "stardust-1/016-gengar.png", "notes": "Star" },
-    { "number": "017", "name": "Arcanine", "rarity": "super_rare", "imageFile": "stardust-1/017-arcanine.png", "notes": "Star" },
-    { "number": "018", "name": "Rhyperior", "rarity": "super_rare", "imageFile": "stardust-1/018-rhyperior.png", "notes": "Star" },
-    { "number": "019", "name": "Pikachu", "rarity": "super_rare", "imageFile": "stardust-1/019-pikachu.png", "notes": "Star" },
-    { "number": "020", "name": "Flygon", "rarity": "super_rare", "imageFile": "stardust-1/020-flygon.png", "notes": "Star" },
-    { "number": "021", "name": "Rillaboom", "rarity": "super_rare", "imageFile": "stardust-1/021-rillaboom.png", "notes": "Star" },
-    { "number": "022", "name": "Cinderace", "rarity": "super_rare", "imageFile": "stardust-1/022-cinderace.png", "notes": "Star" },
-    { "number": "023", "name": "Inteleon", "rarity": "super_rare", "imageFile": "stardust-1/023-inteleon.png", "notes": "Star" },
-    { "number": "024", "name": "Obstagoon", "rarity": "super_rare", "imageFile": "stardust-1/024-obstagoon.png", "notes": "Star" },
-    { "number": "025", "name": "Keldeo", "rarity": "super_rare", "imageFile": "stardust-1/025-keldeo.png", "notes": "Star" },
-    { "number": "026", "name": "Sprigatito", "rarity": "common", "imageFile": "stardust-1/026-sprigatito.png", "notes": "" },
-    { "number": "027", "name": "Floragato", "rarity": "uncommon", "imageFile": "stardust-1/027-floragato.png", "notes": "" },
-    { "number": "028", "name": "Fuecoco", "rarity": "common", "imageFile": "stardust-1/028-fuecoco.png", "notes": "" },
-    { "number": "029", "name": "Crocalor", "rarity": "uncommon", "imageFile": "stardust-1/029-crocalor.png", "notes": "" },
-    { "number": "030", "name": "Quaxly", "rarity": "common", "imageFile": "stardust-1/030-quaxly.png", "notes": "" },
-    { "number": "031", "name": "Quaxwell", "rarity": "uncommon", "imageFile": "stardust-1/031-quaxwell.png", "notes": "" },
-    { "number": "032", "name": "Grookey", "rarity": "common", "imageFile": "stardust-1/032-grookey.png", "notes": "" },
-    { "number": "033", "name": "Thwackey", "rarity": "uncommon", "imageFile": "stardust-1/033-thwackey.png", "notes": "" },
-    { "number": "034", "name": "Rillaboom", "rarity": "rare", "imageFile": "stardust-1/034-rillaboom.png", "notes": "" },
-    { "number": "035", "name": "Scorbunny", "rarity": "common", "imageFile": "stardust-1/035-scorbunny.png", "notes": "" },
-    { "number": "036", "name": "Raboot", "rarity": "uncommon", "imageFile": "stardust-1/036-raboot.png", "notes": "" },
-    { "number": "037", "name": "Cinderace", "rarity": "rare", "imageFile": "stardust-1/037-cinderace.png", "notes": "" },
-    { "number": "038", "name": "Sobble", "rarity": "common", "imageFile": "stardust-1/038-sobble.png", "notes": "" },
-    { "number": "039", "name": "Drizzile", "rarity": "uncommon", "imageFile": "stardust-1/039-drizzile.png", "notes": "" },
-    { "number": "040", "name": "Inteleon", "rarity": "rare", "imageFile": "stardust-1/040-inteleon.png", "notes": "" },
-    { "number": "041", "name": "Dedenne", "rarity": "common", "imageFile": "stardust-1/041-dedenne.png", "notes": "" },
-    { "number": "042", "name": "Pikachu", "rarity": "uncommon", "imageFile": "stardust-1/042-pikachu.png", "notes": "" },
-    { "number": "043", "name": "Raichu", "rarity": "rare", "imageFile": "stardust-1/043-raichu.png", "notes": "" },
-    { "number": "044", "name": "Eevee", "rarity": "uncommon", "imageFile": "stardust-1/044-eevee.png", "notes": "" },
-    { "number": "045", "name": "Jolteon", "rarity": "rare", "imageFile": "stardust-1/045-jolteon.png", "notes": "" },
-    { "number": "046", "name": "Espeon", "rarity": "rare", "imageFile": "stardust-1/046-espeon.png", "notes": "" },
-    { "number": "047", "name": "Leafeon", "rarity": "rare", "imageFile": "stardust-1/047-leafeon.png", "notes": "" },
-    { "number": "048", "name": "Sylveon", "rarity": "rare", "imageFile": "stardust-1/048-sylveon.png", "notes": "" },
-    { "number": "049", "name": "Sneasel", "rarity": "uncommon", "imageFile": "stardust-1/049-sneasel.png", "notes": "" },
-    { "number": "050", "name": "Weavile", "rarity": "rare", "imageFile": "stardust-1/050-weavile.png", "notes": "" },
-    { "number": "051", "name": "Golett", "rarity": "common", "imageFile": "stardust-1/051-golett.png", "notes": "" },
-    { "number": "052", "name": "Golurk", "rarity": "rare", "imageFile": "stardust-1/052-golurk.png", "notes": "" },
-    { "number": "053", "name": "Slowpoke", "rarity": "common", "imageFile": "stardust-1/053-slowpoke.png", "notes": "" },
-    { "number": "054", "name": "Slowbro", "rarity": "rare", "imageFile": "stardust-1/054-slowbro.png", "notes": "" },
-    { "number": "055", "name": "Mudbray", "rarity": "common", "imageFile": "stardust-1/055-mudbray.png", "notes": "" },
-    { "number": "056", "name": "Mudsdale", "rarity": "rare", "imageFile": "stardust-1/056-mudsdale.png", "notes": "" },
-    { "number": "057", "name": "Galarian Zigzagoon", "rarity": "common", "imageFile": "stardust-1/057-galarian-zigzagoon.png", "notes": "" },
-    { "number": "058", "name": "Galarian Linoone", "rarity": "uncommon", "imageFile": "stardust-1/058-galarian-linoone.png", "notes": "" },
-    { "number": "059", "name": "Obstagoon", "rarity": "rare", "imageFile": "stardust-1/059-obstagoon.png", "notes": "" },
-    { "number": "060", "name": "Grubbin", "rarity": "common", "imageFile": "stardust-1/060-grubbin.png", "notes": "" },
-    { "number": "061", "name": "Charjabug", "rarity": "uncommon", "imageFile": "stardust-1/061-charjabug.png", "notes": "" },
-    { "number": "062", "name": "Vikavolt", "rarity": "rare", "imageFile": "stardust-1/062-vikavolt.png", "notes": "" },
-    { "number": "063", "name": "Doduo", "rarity": "common", "imageFile": "stardust-1/063-doduo.png", "notes": "" },
-    { "number": "064", "name": "Dodrio", "rarity": "rare", "imageFile": "stardust-1/064-dodrio.png", "notes": "" },
-    { "number": "065", "name": "Gossifleur", "rarity": "common", "imageFile": "stardust-1/065-gossifleur.png", "notes": "" },
-    { "number": "066", "name": "Eldegoss", "rarity": "rare", "imageFile": "stardust-1/066-eldegoss.png", "notes": "" },
-    { "number": "067", "name": "Turtonator", "rarity": "rare", "imageFile": "stardust-1/067-turtonator.png", "notes": "" },
-    { "number": "068", "name": "Cramorant", "rarity": "uncommon", "imageFile": "stardust-1/068-cramorant.png", "notes": "" },
-    { "number": "069", "name": "Snom", "rarity": "common", "imageFile": "stardust-1/069-snom.png", "notes": "" },
-    { "number": "070", "name": "Frosmoth", "rarity": "rare", "imageFile": "stardust-1/070-frosmoth.png", "notes": "" }
+    {
+      "number": "001",
+      "name": "Mewtwo",
+      "rarity": "black-6",
+      "imageFile": "stardust-1/001-mewtwo.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "002",
+      "name": "Mew",
+      "rarity": "black-6",
+      "imageFile": "stardust-1/002-mew.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "003",
+      "name": "Zacian",
+      "rarity": "black-6",
+      "imageFile": "stardust-1/003-zacian.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "004",
+      "name": "Zamazenta",
+      "rarity": "black-6",
+      "imageFile": "stardust-1/004-zamazenta.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "005",
+      "name": "Tyranitar",
+      "rarity": "black-6",
+      "imageFile": "stardust-1/005-tyranitar.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "006",
+      "name": "Metagross",
+      "rarity": "black-6",
+      "imageFile": "stardust-1/006-metagross.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "007",
+      "name": "Miraidon",
+      "rarity": "black-6",
+      "imageFile": "stardust-1/007-miraidon.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "008",
+      "name": "Venusaur",
+      "rarity": "black-6",
+      "imageFile": "stardust-1/008-venusaur.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "009",
+      "name": "Charizard",
+      "rarity": "black-6",
+      "imageFile": "stardust-1/009-charizard.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "010",
+      "name": "Blastoise",
+      "rarity": "black-6",
+      "imageFile": "stardust-1/010-blastoise.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "011",
+      "name": "Vaporeon",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/011-vaporeon.png",
+      "notes": "Star"
+    },
+    {
+      "number": "012",
+      "name": "Flareon",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/012-flareon.png",
+      "notes": "Star"
+    },
+    {
+      "number": "013",
+      "name": "Umbreon",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/013-umbreon.png",
+      "notes": "Star"
+    },
+    {
+      "number": "014",
+      "name": "Glaceon",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/014-glaceon.png",
+      "notes": "Star"
+    },
+    {
+      "number": "015",
+      "name": "Pidgeot",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/015-pidgeot.png",
+      "notes": "Star"
+    },
+    {
+      "number": "016",
+      "name": "Gengar",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/016-gengar.png",
+      "notes": "Star"
+    },
+    {
+      "number": "017",
+      "name": "Arcanine",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/017-arcanine.png",
+      "notes": "Star"
+    },
+    {
+      "number": "018",
+      "name": "Rhyperior",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/018-rhyperior.png",
+      "notes": "Star"
+    },
+    {
+      "number": "019",
+      "name": "Pikachu",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/019-pikachu.png",
+      "notes": "Star"
+    },
+    {
+      "number": "020",
+      "name": "Flygon",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/020-flygon.png",
+      "notes": "Star"
+    },
+    {
+      "number": "021",
+      "name": "Rillaboom",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/021-rillaboom.png",
+      "notes": "Star"
+    },
+    {
+      "number": "022",
+      "name": "Cinderace",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/022-cinderace.png",
+      "notes": "Star"
+    },
+    {
+      "number": "023",
+      "name": "Inteleon",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/023-inteleon.png",
+      "notes": "Star"
+    },
+    {
+      "number": "024",
+      "name": "Obstagoon",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/024-obstagoon.png",
+      "notes": "Star"
+    },
+    {
+      "number": "025",
+      "name": "Keldeo",
+      "rarity": "white-5",
+      "imageFile": "stardust-1/025-keldeo.png",
+      "notes": "Star"
+    },
+    {
+      "number": "026",
+      "name": "Sprigatito",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/026-sprigatito.png",
+      "notes": ""
+    },
+    {
+      "number": "027",
+      "name": "Floragato",
+      "rarity": "white-3",
+      "imageFile": "stardust-1/027-floragato.png",
+      "notes": ""
+    },
+    {
+      "number": "028",
+      "name": "Fuecoco",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/028-fuecoco.png",
+      "notes": ""
+    },
+    {
+      "number": "029",
+      "name": "Crocalor",
+      "rarity": "white-3",
+      "imageFile": "stardust-1/029-crocalor.png",
+      "notes": ""
+    },
+    {
+      "number": "030",
+      "name": "Quaxly",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/030-quaxly.png",
+      "notes": ""
+    },
+    {
+      "number": "031",
+      "name": "Quaxwell",
+      "rarity": "white-3",
+      "imageFile": "stardust-1/031-quaxwell.png",
+      "notes": ""
+    },
+    {
+      "number": "032",
+      "name": "Grookey",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/032-grookey.png",
+      "notes": ""
+    },
+    {
+      "number": "033",
+      "name": "Thwackey",
+      "rarity": "white-3",
+      "imageFile": "stardust-1/033-thwackey.png",
+      "notes": ""
+    },
+    {
+      "number": "034",
+      "name": "Rillaboom",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/034-rillaboom.png",
+      "notes": ""
+    },
+    {
+      "number": "035",
+      "name": "Scorbunny",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/035-scorbunny.png",
+      "notes": ""
+    },
+    {
+      "number": "036",
+      "name": "Raboot",
+      "rarity": "white-3",
+      "imageFile": "stardust-1/036-raboot.png",
+      "notes": ""
+    },
+    {
+      "number": "037",
+      "name": "Cinderace",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/037-cinderace.png",
+      "notes": ""
+    },
+    {
+      "number": "038",
+      "name": "Sobble",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/038-sobble.png",
+      "notes": ""
+    },
+    {
+      "number": "039",
+      "name": "Drizzile",
+      "rarity": "white-3",
+      "imageFile": "stardust-1/039-drizzile.png",
+      "notes": ""
+    },
+    {
+      "number": "040",
+      "name": "Inteleon",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/040-inteleon.png",
+      "notes": ""
+    },
+    {
+      "number": "041",
+      "name": "Dedenne",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/041-dedenne.png",
+      "notes": ""
+    },
+    {
+      "number": "042",
+      "name": "Pikachu",
+      "rarity": "white-3",
+      "imageFile": "stardust-1/042-pikachu.png",
+      "notes": ""
+    },
+    {
+      "number": "043",
+      "name": "Raichu",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/043-raichu.png",
+      "notes": ""
+    },
+    {
+      "number": "044",
+      "name": "Eevee",
+      "rarity": "white-3",
+      "imageFile": "stardust-1/044-eevee.png",
+      "notes": ""
+    },
+    {
+      "number": "045",
+      "name": "Jolteon",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/045-jolteon.png",
+      "notes": ""
+    },
+    {
+      "number": "046",
+      "name": "Espeon",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/046-espeon.png",
+      "notes": ""
+    },
+    {
+      "number": "047",
+      "name": "Leafeon",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/047-leafeon.png",
+      "notes": ""
+    },
+    {
+      "number": "048",
+      "name": "Sylveon",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/048-sylveon.png",
+      "notes": ""
+    },
+    {
+      "number": "049",
+      "name": "Sneasel",
+      "rarity": "white-3",
+      "imageFile": "stardust-1/049-sneasel.png",
+      "notes": ""
+    },
+    {
+      "number": "050",
+      "name": "Weavile",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/050-weavile.png",
+      "notes": ""
+    },
+    {
+      "number": "051",
+      "name": "Golett",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/051-golett.png",
+      "notes": ""
+    },
+    {
+      "number": "052",
+      "name": "Golurk",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/052-golurk.png",
+      "notes": ""
+    },
+    {
+      "number": "053",
+      "name": "Slowpoke",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/053-slowpoke.png",
+      "notes": ""
+    },
+    {
+      "number": "054",
+      "name": "Slowbro",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/054-slowbro.png",
+      "notes": ""
+    },
+    {
+      "number": "055",
+      "name": "Mudbray",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/055-mudbray.png",
+      "notes": ""
+    },
+    {
+      "number": "056",
+      "name": "Mudsdale",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/056-mudsdale.png",
+      "notes": ""
+    },
+    {
+      "number": "057",
+      "name": "Galarian Zigzagoon",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/057-galarian-zigzagoon.png",
+      "notes": ""
+    },
+    {
+      "number": "058",
+      "name": "Galarian Linoone",
+      "rarity": "white-3",
+      "imageFile": "stardust-1/058-galarian-linoone.png",
+      "notes": ""
+    },
+    {
+      "number": "059",
+      "name": "Obstagoon",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/059-obstagoon.png",
+      "notes": ""
+    },
+    {
+      "number": "060",
+      "name": "Grubbin",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/060-grubbin.png",
+      "notes": ""
+    },
+    {
+      "number": "061",
+      "name": "Charjabug",
+      "rarity": "white-3",
+      "imageFile": "stardust-1/061-charjabug.png",
+      "notes": ""
+    },
+    {
+      "number": "062",
+      "name": "Vikavolt",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/062-vikavolt.png",
+      "notes": ""
+    },
+    {
+      "number": "063",
+      "name": "Doduo",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/063-doduo.png",
+      "notes": ""
+    },
+    {
+      "number": "064",
+      "name": "Dodrio",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/064-dodrio.png",
+      "notes": ""
+    },
+    {
+      "number": "065",
+      "name": "Gossifleur",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/065-gossifleur.png",
+      "notes": ""
+    },
+    {
+      "number": "066",
+      "name": "Eldegoss",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/066-eldegoss.png",
+      "notes": ""
+    },
+    {
+      "number": "067",
+      "name": "Turtonator",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/067-turtonator.png",
+      "notes": ""
+    },
+    {
+      "number": "068",
+      "name": "Cramorant",
+      "rarity": "white-3",
+      "imageFile": "stardust-1/068-cramorant.png",
+      "notes": ""
+    },
+    {
+      "number": "069",
+      "name": "Snom",
+      "rarity": "white-2",
+      "imageFile": "stardust-1/069-snom.png",
+      "notes": ""
+    },
+    {
+      "number": "070",
+      "name": "Frosmoth",
+      "rarity": "white-4",
+      "imageFile": "stardust-1/070-frosmoth.png",
+      "notes": ""
+    }
   ]
 }

@@ -1,11 +1,21 @@
 export type CatalogItemStatus = "pending" | "approved" | "rejected";
 
+// Mezastar's real tag categories: star count (2-6) plus the physical tag
+// color, which is the bigger driver of rarity/value than star count alone.
+// White tags span grades 2-5; grade 6 is normally a black tag, except the
+// rarer "Legacy" reissue which uses violet. Promo tags sit outside the
+// numbered grade system entirely.
 export type Rarity =
-  | "common"
-  | "uncommon"
-  | "rare"
-  | "super_rare"
-  | "secret_rare";
+  | "white-2"
+  | "white-3"
+  | "white-4"
+  | "white-5"
+  | "black-6"
+  | "violet-6-legacy"
+  | "promo-yellow"
+  | "promo-silver"
+  | "promo-gold"
+  | "promo-red";
 
 export interface CatalogSeries {
   id: string;

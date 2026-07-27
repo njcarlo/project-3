@@ -7,75 +7,495 @@
     "coverImageUrl": ""
   },
   "items": [
-    { "number": "001", "name": "Kyogre", "rarity": "secret_rare", "imageFile": "stardust-2/001-kyogre.png", "notes": "Superstar" },
-    { "number": "002", "name": "Groudon", "rarity": "secret_rare", "imageFile": "stardust-2/002-groudon.png", "notes": "Superstar" },
-    { "number": "003", "name": "Koraidon", "rarity": "secret_rare", "imageFile": "stardust-2/003-koraidon.png", "notes": "Superstar" },
-    { "number": "004", "name": "Pikachu", "rarity": "secret_rare", "imageFile": "stardust-2/004-pikachu.png", "notes": "Superstar" },
-    { "number": "005", "name": "Snorlax", "rarity": "secret_rare", "imageFile": "stardust-2/005-snorlax.png", "notes": "Superstar" },
-    { "number": "006", "name": "Kommo-o", "rarity": "secret_rare", "imageFile": "stardust-2/006-kommo-o.png", "notes": "Superstar" },
-    { "number": "007", "name": "Gardevoir", "rarity": "secret_rare", "imageFile": "stardust-2/007-gardevoir.png", "notes": "Superstar" },
-    { "number": "008", "name": "Reshiram", "rarity": "secret_rare", "imageFile": "stardust-2/008-reshiram.png", "notes": "Superstar" },
-    { "number": "009", "name": "Zekrom", "rarity": "secret_rare", "imageFile": "stardust-2/009-zekrom.png", "notes": "Superstar" },
-    { "number": "010", "name": "Kyurem", "rarity": "secret_rare", "imageFile": "stardust-2/010-kyurem.png", "notes": "Superstar" },
-    { "number": "011", "name": "Jolteon", "rarity": "super_rare", "imageFile": "stardust-2/011-jolteon.png", "notes": "Star" },
-    { "number": "012", "name": "Espeon", "rarity": "super_rare", "imageFile": "stardust-2/012-espeon.png", "notes": "Star" },
-    { "number": "013", "name": "Leafeon", "rarity": "super_rare", "imageFile": "stardust-2/013-leafeon.png", "notes": "Star" },
-    { "number": "014", "name": "Sylveon", "rarity": "super_rare", "imageFile": "stardust-2/014-sylveon.png", "notes": "Star" },
-    { "number": "015", "name": "Lucario", "rarity": "super_rare", "imageFile": "stardust-2/015-lucario.png", "notes": "Star" },
-    { "number": "016", "name": "Torterra", "rarity": "super_rare", "imageFile": "stardust-2/016-torterra.png", "notes": "Star" },
-    { "number": "017", "name": "Infernape", "rarity": "super_rare", "imageFile": "stardust-2/017-infernape.png", "notes": "Star" },
-    { "number": "018", "name": "Empoleon", "rarity": "super_rare", "imageFile": "stardust-2/018-empoleon.png", "notes": "Star" },
-    { "number": "019", "name": "Alolan Ninetales", "rarity": "super_rare", "imageFile": "stardust-2/019-alolan-ninetales.png", "notes": "Star" },
-    { "number": "020", "name": "Tyranitar", "rarity": "super_rare", "imageFile": "stardust-2/020-tyranitar.png", "notes": "Star" },
-    { "number": "021", "name": "Metagross", "rarity": "super_rare", "imageFile": "stardust-2/021-metagross.png", "notes": "Star" },
-    { "number": "022", "name": "Flapple", "rarity": "super_rare", "imageFile": "stardust-2/022-flapple.png", "notes": "Star" },
-    { "number": "023", "name": "Appletun", "rarity": "super_rare", "imageFile": "stardust-2/023-appletun.png", "notes": "Star" },
-    { "number": "024", "name": "Alcremie", "rarity": "super_rare", "imageFile": "stardust-2/024-alcremie.png", "notes": "Star" },
-    { "number": "025", "name": "Drednaw", "rarity": "super_rare", "imageFile": "stardust-2/025-drednaw.png", "notes": "Star" },
-    { "number": "026", "name": "Meowscarada", "rarity": "rare", "imageFile": "stardust-2/026-meowscarada.png", "notes": "" },
-    { "number": "027", "name": "Skeledirge", "rarity": "rare", "imageFile": "stardust-2/027-skeledirge.png", "notes": "" },
-    { "number": "028", "name": "Quaquaval", "rarity": "rare", "imageFile": "stardust-2/028-quaquaval.png", "notes": "" },
-    { "number": "029", "name": "Charcadet", "rarity": "common", "imageFile": "stardust-2/029-charcadet.png", "notes": "" },
-    { "number": "030", "name": "Frigibax", "rarity": "common", "imageFile": "stardust-2/030-frigibax.png", "notes": "" },
-    { "number": "031", "name": "Pawmi", "rarity": "common", "imageFile": "stardust-2/031-pawmi.png", "notes": "" },
-    { "number": "032", "name": "Turtwig", "rarity": "common", "imageFile": "stardust-2/032-turtwig.png", "notes": "" },
-    { "number": "033", "name": "Grotle", "rarity": "uncommon", "imageFile": "stardust-2/033-grotle.png", "notes": "" },
-    { "number": "034", "name": "Torterra", "rarity": "rare", "imageFile": "stardust-2/034-torterra.png", "notes": "" },
-    { "number": "035", "name": "Chimchar", "rarity": "common", "imageFile": "stardust-2/035-chimchar.png", "notes": "" },
-    { "number": "036", "name": "Monferno", "rarity": "uncommon", "imageFile": "stardust-2/036-monferno.png", "notes": "" },
-    { "number": "037", "name": "Infernape", "rarity": "rare", "imageFile": "stardust-2/037-infernape.png", "notes": "" },
-    { "number": "038", "name": "Piplup", "rarity": "common", "imageFile": "stardust-2/038-piplup.png", "notes": "" },
-    { "number": "039", "name": "Prinplup", "rarity": "uncommon", "imageFile": "stardust-2/039-prinplup.png", "notes": "" },
-    { "number": "040", "name": "Empoleon", "rarity": "rare", "imageFile": "stardust-2/040-empoleon.png", "notes": "" },
-    { "number": "041", "name": "Vaporeon", "rarity": "rare", "imageFile": "stardust-2/041-vaporeon.png", "notes": "" },
-    { "number": "042", "name": "Flareon", "rarity": "rare", "imageFile": "stardust-2/042-flareon.png", "notes": "" },
-    { "number": "043", "name": "Umbreon", "rarity": "rare", "imageFile": "stardust-2/043-umbreon.png", "notes": "" },
-    { "number": "044", "name": "Glaceon", "rarity": "rare", "imageFile": "stardust-2/044-glaceon.png", "notes": "" },
-    { "number": "045", "name": "Yamper", "rarity": "common", "imageFile": "stardust-2/045-yamper.png", "notes": "" },
-    { "number": "046", "name": "Boltund", "rarity": "rare", "imageFile": "stardust-2/046-boltund.png", "notes": "" },
-    { "number": "047", "name": "Pidgey", "rarity": "common", "imageFile": "stardust-2/047-pidgey.png", "notes": "" },
-    { "number": "048", "name": "Pidgeotto", "rarity": "uncommon", "imageFile": "stardust-2/048-pidgeotto.png", "notes": "" },
-    { "number": "049", "name": "Pidgeot", "rarity": "rare", "imageFile": "stardust-2/049-pidgeot.png", "notes": "" },
-    { "number": "050", "name": "Alolan Sandshrew", "rarity": "common", "imageFile": "stardust-2/050-alolan-sandshrew.png", "notes": "" },
-    { "number": "051", "name": "Alolan Sandslash", "rarity": "rare", "imageFile": "stardust-2/051-alolan-sandslash.png", "notes": "" },
-    { "number": "052", "name": "Bronzor", "rarity": "common", "imageFile": "stardust-2/052-bronzor.png", "notes": "" },
-    { "number": "053", "name": "Bronzong", "rarity": "rare", "imageFile": "stardust-2/053-bronzong.png", "notes": "" },
-    { "number": "054", "name": "Trapinch", "rarity": "common", "imageFile": "stardust-2/054-trapinch.png", "notes": "" },
-    { "number": "055", "name": "Vibrava", "rarity": "uncommon", "imageFile": "stardust-2/055-vibrava.png", "notes": "" },
-    { "number": "056", "name": "Flygon", "rarity": "rare", "imageFile": "stardust-2/056-flygon.png", "notes": "" },
-    { "number": "057", "name": "Wingull", "rarity": "common", "imageFile": "stardust-2/057-wingull.png", "notes": "" },
-    { "number": "058", "name": "Pelipper", "rarity": "rare", "imageFile": "stardust-2/058-pelipper.png", "notes": "" },
-    { "number": "059", "name": "Jynx", "rarity": "uncommon", "imageFile": "stardust-2/059-jynx.png", "notes": "" },
-    { "number": "060", "name": "Abra", "rarity": "common", "imageFile": "stardust-2/060-abra.png", "notes": "" },
-    { "number": "061", "name": "Kadabra", "rarity": "uncommon", "imageFile": "stardust-2/061-kadabra.png", "notes": "" },
-    { "number": "062", "name": "Alakazam", "rarity": "rare", "imageFile": "stardust-2/062-alakazam.png", "notes": "" },
-    { "number": "063", "name": "Drifloon", "rarity": "common", "imageFile": "stardust-2/063-drifloon.png", "notes": "" },
-    { "number": "064", "name": "Drifblim", "rarity": "rare", "imageFile": "stardust-2/064-drifblim.png", "notes": "" },
-    { "number": "065", "name": "Mareanie", "rarity": "common", "imageFile": "stardust-2/065-mareanie.png", "notes": "" },
-    { "number": "066", "name": "Togedemaru", "rarity": "uncommon", "imageFile": "stardust-2/066-togedemaru.png", "notes": "" },
-    { "number": "067", "name": "Ralts", "rarity": "common", "imageFile": "stardust-2/067-ralts.png", "notes": "" },
-    { "number": "068", "name": "Kirlia", "rarity": "uncommon", "imageFile": "stardust-2/068-kirlia.png", "notes": "" },
-    { "number": "069", "name": "Gardevoir", "rarity": "rare", "imageFile": "stardust-2/069-gardevoir.png", "notes": "" },
-    { "number": "070", "name": "Onix", "rarity": "uncommon", "imageFile": "stardust-2/070-onix.png", "notes": "" }
+    {
+      "number": "001",
+      "name": "Kyogre",
+      "rarity": "black-6",
+      "imageFile": "stardust-2/001-kyogre.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "002",
+      "name": "Groudon",
+      "rarity": "black-6",
+      "imageFile": "stardust-2/002-groudon.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "003",
+      "name": "Koraidon",
+      "rarity": "black-6",
+      "imageFile": "stardust-2/003-koraidon.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "004",
+      "name": "Pikachu",
+      "rarity": "black-6",
+      "imageFile": "stardust-2/004-pikachu.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "005",
+      "name": "Snorlax",
+      "rarity": "black-6",
+      "imageFile": "stardust-2/005-snorlax.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "006",
+      "name": "Kommo-o",
+      "rarity": "black-6",
+      "imageFile": "stardust-2/006-kommo-o.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "007",
+      "name": "Gardevoir",
+      "rarity": "black-6",
+      "imageFile": "stardust-2/007-gardevoir.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "008",
+      "name": "Reshiram",
+      "rarity": "black-6",
+      "imageFile": "stardust-2/008-reshiram.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "009",
+      "name": "Zekrom",
+      "rarity": "black-6",
+      "imageFile": "stardust-2/009-zekrom.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "010",
+      "name": "Kyurem",
+      "rarity": "black-6",
+      "imageFile": "stardust-2/010-kyurem.png",
+      "notes": "Superstar"
+    },
+    {
+      "number": "011",
+      "name": "Jolteon",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/011-jolteon.png",
+      "notes": "Star"
+    },
+    {
+      "number": "012",
+      "name": "Espeon",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/012-espeon.png",
+      "notes": "Star"
+    },
+    {
+      "number": "013",
+      "name": "Leafeon",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/013-leafeon.png",
+      "notes": "Star"
+    },
+    {
+      "number": "014",
+      "name": "Sylveon",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/014-sylveon.png",
+      "notes": "Star"
+    },
+    {
+      "number": "015",
+      "name": "Lucario",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/015-lucario.png",
+      "notes": "Star"
+    },
+    {
+      "number": "016",
+      "name": "Torterra",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/016-torterra.png",
+      "notes": "Star"
+    },
+    {
+      "number": "017",
+      "name": "Infernape",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/017-infernape.png",
+      "notes": "Star"
+    },
+    {
+      "number": "018",
+      "name": "Empoleon",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/018-empoleon.png",
+      "notes": "Star"
+    },
+    {
+      "number": "019",
+      "name": "Alolan Ninetales",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/019-alolan-ninetales.png",
+      "notes": "Star"
+    },
+    {
+      "number": "020",
+      "name": "Tyranitar",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/020-tyranitar.png",
+      "notes": "Star"
+    },
+    {
+      "number": "021",
+      "name": "Metagross",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/021-metagross.png",
+      "notes": "Star"
+    },
+    {
+      "number": "022",
+      "name": "Flapple",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/022-flapple.png",
+      "notes": "Star"
+    },
+    {
+      "number": "023",
+      "name": "Appletun",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/023-appletun.png",
+      "notes": "Star"
+    },
+    {
+      "number": "024",
+      "name": "Alcremie",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/024-alcremie.png",
+      "notes": "Star"
+    },
+    {
+      "number": "025",
+      "name": "Drednaw",
+      "rarity": "white-5",
+      "imageFile": "stardust-2/025-drednaw.png",
+      "notes": "Star"
+    },
+    {
+      "number": "026",
+      "name": "Meowscarada",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/026-meowscarada.png",
+      "notes": ""
+    },
+    {
+      "number": "027",
+      "name": "Skeledirge",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/027-skeledirge.png",
+      "notes": ""
+    },
+    {
+      "number": "028",
+      "name": "Quaquaval",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/028-quaquaval.png",
+      "notes": ""
+    },
+    {
+      "number": "029",
+      "name": "Charcadet",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/029-charcadet.png",
+      "notes": ""
+    },
+    {
+      "number": "030",
+      "name": "Frigibax",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/030-frigibax.png",
+      "notes": ""
+    },
+    {
+      "number": "031",
+      "name": "Pawmi",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/031-pawmi.png",
+      "notes": ""
+    },
+    {
+      "number": "032",
+      "name": "Turtwig",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/032-turtwig.png",
+      "notes": ""
+    },
+    {
+      "number": "033",
+      "name": "Grotle",
+      "rarity": "white-3",
+      "imageFile": "stardust-2/033-grotle.png",
+      "notes": ""
+    },
+    {
+      "number": "034",
+      "name": "Torterra",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/034-torterra.png",
+      "notes": ""
+    },
+    {
+      "number": "035",
+      "name": "Chimchar",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/035-chimchar.png",
+      "notes": ""
+    },
+    {
+      "number": "036",
+      "name": "Monferno",
+      "rarity": "white-3",
+      "imageFile": "stardust-2/036-monferno.png",
+      "notes": ""
+    },
+    {
+      "number": "037",
+      "name": "Infernape",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/037-infernape.png",
+      "notes": ""
+    },
+    {
+      "number": "038",
+      "name": "Piplup",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/038-piplup.png",
+      "notes": ""
+    },
+    {
+      "number": "039",
+      "name": "Prinplup",
+      "rarity": "white-3",
+      "imageFile": "stardust-2/039-prinplup.png",
+      "notes": ""
+    },
+    {
+      "number": "040",
+      "name": "Empoleon",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/040-empoleon.png",
+      "notes": ""
+    },
+    {
+      "number": "041",
+      "name": "Vaporeon",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/041-vaporeon.png",
+      "notes": ""
+    },
+    {
+      "number": "042",
+      "name": "Flareon",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/042-flareon.png",
+      "notes": ""
+    },
+    {
+      "number": "043",
+      "name": "Umbreon",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/043-umbreon.png",
+      "notes": ""
+    },
+    {
+      "number": "044",
+      "name": "Glaceon",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/044-glaceon.png",
+      "notes": ""
+    },
+    {
+      "number": "045",
+      "name": "Yamper",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/045-yamper.png",
+      "notes": ""
+    },
+    {
+      "number": "046",
+      "name": "Boltund",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/046-boltund.png",
+      "notes": ""
+    },
+    {
+      "number": "047",
+      "name": "Pidgey",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/047-pidgey.png",
+      "notes": ""
+    },
+    {
+      "number": "048",
+      "name": "Pidgeotto",
+      "rarity": "white-3",
+      "imageFile": "stardust-2/048-pidgeotto.png",
+      "notes": ""
+    },
+    {
+      "number": "049",
+      "name": "Pidgeot",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/049-pidgeot.png",
+      "notes": ""
+    },
+    {
+      "number": "050",
+      "name": "Alolan Sandshrew",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/050-alolan-sandshrew.png",
+      "notes": ""
+    },
+    {
+      "number": "051",
+      "name": "Alolan Sandslash",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/051-alolan-sandslash.png",
+      "notes": ""
+    },
+    {
+      "number": "052",
+      "name": "Bronzor",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/052-bronzor.png",
+      "notes": ""
+    },
+    {
+      "number": "053",
+      "name": "Bronzong",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/053-bronzong.png",
+      "notes": ""
+    },
+    {
+      "number": "054",
+      "name": "Trapinch",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/054-trapinch.png",
+      "notes": ""
+    },
+    {
+      "number": "055",
+      "name": "Vibrava",
+      "rarity": "white-3",
+      "imageFile": "stardust-2/055-vibrava.png",
+      "notes": ""
+    },
+    {
+      "number": "056",
+      "name": "Flygon",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/056-flygon.png",
+      "notes": ""
+    },
+    {
+      "number": "057",
+      "name": "Wingull",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/057-wingull.png",
+      "notes": ""
+    },
+    {
+      "number": "058",
+      "name": "Pelipper",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/058-pelipper.png",
+      "notes": ""
+    },
+    {
+      "number": "059",
+      "name": "Jynx",
+      "rarity": "white-3",
+      "imageFile": "stardust-2/059-jynx.png",
+      "notes": ""
+    },
+    {
+      "number": "060",
+      "name": "Abra",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/060-abra.png",
+      "notes": ""
+    },
+    {
+      "number": "061",
+      "name": "Kadabra",
+      "rarity": "white-3",
+      "imageFile": "stardust-2/061-kadabra.png",
+      "notes": ""
+    },
+    {
+      "number": "062",
+      "name": "Alakazam",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/062-alakazam.png",
+      "notes": ""
+    },
+    {
+      "number": "063",
+      "name": "Drifloon",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/063-drifloon.png",
+      "notes": ""
+    },
+    {
+      "number": "064",
+      "name": "Drifblim",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/064-drifblim.png",
+      "notes": ""
+    },
+    {
+      "number": "065",
+      "name": "Mareanie",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/065-mareanie.png",
+      "notes": ""
+    },
+    {
+      "number": "066",
+      "name": "Togedemaru",
+      "rarity": "white-3",
+      "imageFile": "stardust-2/066-togedemaru.png",
+      "notes": ""
+    },
+    {
+      "number": "067",
+      "name": "Ralts",
+      "rarity": "white-2",
+      "imageFile": "stardust-2/067-ralts.png",
+      "notes": ""
+    },
+    {
+      "number": "068",
+      "name": "Kirlia",
+      "rarity": "white-3",
+      "imageFile": "stardust-2/068-kirlia.png",
+      "notes": ""
+    },
+    {
+      "number": "069",
+      "name": "Gardevoir",
+      "rarity": "white-4",
+      "imageFile": "stardust-2/069-gardevoir.png",
+      "notes": ""
+    },
+    {
+      "number": "070",
+      "name": "Onix",
+      "rarity": "white-3",
+      "imageFile": "stardust-2/070-onix.png",
+      "notes": ""
+    }
   ]
 }
