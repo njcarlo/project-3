@@ -12,6 +12,8 @@ import {
 
 export default function LeaderboardSubmitPage() {
   const [name, setName] = useState("");
+  const [nameQuery, setNameQuery] = useState("");
+  const [nameOpen, setNameOpen] = useState(false);
   const [media, setMedia] = useState<File | null>(null);
   const [selfie, setSelfie] = useState<File | null>(null);
   const [qr, setQr] = useState<File | null>(null);
@@ -80,36 +82,79 @@ export default function LeaderboardSubmitPage() {
     );
   }
 
+  const query = nameQuery.trim().toLowerCase();
+  const filteredNames =
+    query === ""
+      ? PARTICIPANTS
+      : PARTICIPANTS.filter((p) => p.toLowerCase().includes(query));
+
+  function selectName(p: string) {
+    setName(p);
+    setNameQuery(p);
+    setNameOpen(false);
+  }
+
   return (
     <div className="mx-auto max-w-lg px-4 py-10">
       <h1 className="mb-2 text-3xl font-bold tracking-tight">Submit your entry</h1>
       <p className="mb-8 text-sm text-muted">
-        Enter your name, upload your photo or video, and add a selfie so we can
-        verify it&apos;s really you.
+        Find your name, upload your photo or video, add a selfie, and a photo of
+        your Trainer ID QR so we can verify it&apos;s really you.
       </p>
 
       <form onSubmit={handleSubmit} className="card flex flex-col gap-5 rounded-xl p-5">
-        <label className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">Name</span>
-          <input
-            type="text"
-            required
-            list="participant-list"
-            autoComplete="off"
-            placeholder="Search and select your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="rounded-lg border border-card-border bg-background px-3 py-2"
-          />
-          <datalist id="participant-list">
-            {PARTICIPANTS.map((p) => (
-              <option key={p} value={p} />
-            ))}
-          </datalist>
-          <span className="text-xs text-muted">
-            Start typing to find your name in the list.
-          </span>
-        </label>
+          <div className="relative">
+            <input
+              type="text"
+              inputMode="search"
+              autoComplete="off"
+              placeholder="Search your name..."
+              value={nameQuery}
+              onFocus={() => setNameOpen(true)}
+              onChange={(e) => {
+                setNameQuery(e.target.value);
+                setName("");
+                setNameOpen(true);
+              }}
+              onBlur={() => setTimeout(() => setNameOpen(false), 150)}
+              className="w-full rounded-lg border border-card-border bg-background px-3 py-2"
+            />
+            {nameOpen && (
+              <ul className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-lg border border-card-border bg-background shadow-lg">
+                {filteredNames.length === 0 ? (
+                  <li className="px-3 py-2 text-sm text-muted">
+                    No participant found.
+                  </li>
+                ) : (
+                  filteredNames.map((p) => (
+                    <li key={p}>
+                      <button
+                        type="button"
+                        // Prevent the input's blur from firing before the click.
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => selectName(p)}
+                        className={`block w-full px-3 py-2.5 text-left text-sm hover:bg-card-border/40 ${
+                          name === p ? "bg-accent/20 font-medium" : ""
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    </li>
+                  ))
+                )}
+              </ul>
+            )}
+          </div>
+          {name ? (
+            <span className="text-xs text-emerald-500">✓ Selected: {name}</span>
+          ) : (
+            <span className="text-xs text-muted">
+              Tap the field and type to find your name in the list.
+            </span>
+          )}
+        </div>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">Photo or video entry</span>
