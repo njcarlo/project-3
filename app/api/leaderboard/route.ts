@@ -3,9 +3,28 @@ import { adminDb } from "@/lib/firebase/admin";
 import { LEADERBOARD_COLLECTION } from "@/lib/leaderboard";
 import { serializeSubmission } from "@/lib/leaderboardServer";
 
-// The public live leaderboard: scored entries ranked high-to-low. Never
-// cached, so the page reflects the admin's latest scores.
+// The public live leaderboard. Never cached, so it reflects the admin's
+// latest scores.
 export const dynamic = "force-dynamic";
+
+interface HistoryItem {
+  id: string;
+  score: number;
+  mediaUrl: string;
+  mediaType: "image" | "video";
+  at: number;
+}
+
+interface BoardEntry {
+  name: string;
+  // Best (highest) score — the only one that counts toward ranking.
+  score: number;
+  // Media for the best-scoring entry, shown on the board and when opened.
+  mediaUrl: string;
+  mediaType: "image" | "video";
+  // Every scored submission for this participant, newest first.
+  history: HistoryItem[];
+}
 
 export async function GET() {
   const snap = await adminDb
@@ -13,15 +32,46 @@ export async function GET() {
     .where("status", "==", "scored")
     .get();
 
-  const entries = snap.docs
-    .map(serializeSubmission)
-    // Expose only what the public leaderboard needs — no selfies.
-    .map(({ id, name, mediaUrl, mediaType, score }) => ({
-      id,
-      name,
-      mediaUrl,
-      mediaType,
-      score: score ?? 0,
+  // Group scored submissions by participant so only their highest score
+  // ranks, while keeping the full score history for the detail view.
+  const byName = new Map<string, BoardEntry>();
+
+  for (const doc of snap.docs) {
+    const s = serializeSubmission(doc);
+    const score = s.score ?? 0;
+    const item: HistoryItem = {
+      id: s.id,
+      score,
+      mediaUrl: s.mediaUrl,
+      mediaType: s.mediaType,
+      at: s.updatedAt || s.createdAt,
+    };
+
+    const existing = byName.get(s.name);
+    if (!existing) {
+      byName.set(s.name, {
+        name: s.name,
+        score,
+        mediaUrl: s.mediaUrl,
+        mediaType: s.mediaType,
+        history: [item],
+      });
+      continue;
+    }
+
+    existing.history.push(item);
+    // Promote the best-scoring submission to the board-facing fields.
+    if (score > existing.score) {
+      existing.score = score;
+      existing.mediaUrl = s.mediaUrl;
+      existing.mediaType = s.mediaType;
+    }
+  }
+
+  const entries = [...byName.values()]
+    .map((e) => ({
+      ...e,
+      history: e.history.sort((a, b) => b.at - a.at),
     }))
     .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
 

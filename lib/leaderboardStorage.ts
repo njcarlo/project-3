@@ -7,7 +7,7 @@ import { adminStorage } from "@/lib/firebase/admin";
 export async function uploadLeaderboardFile(
   file: File,
   submissionId: string,
-  kind: "media" | "selfie"
+  kind: "media" | "selfie" | "qr"
 ): Promise<string> {
   const bucket = adminStorage.bucket();
   const ext = extensionFor(file.name, file.type);

@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   MAX_MEDIA_BYTES,
   MAX_SELFIE_BYTES,
+  MAX_QR_BYTES,
   PARTICIPANTS,
   isValidParticipant,
 } from "@/lib/leaderboard";
@@ -13,6 +14,7 @@ export default function LeaderboardSubmitPage() {
   const [name, setName] = useState("");
   const [media, setMedia] = useState<File | null>(null);
   const [selfie, setSelfie] = useState<File | null>(null);
+  const [qr, setQr] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -26,10 +28,13 @@ export default function LeaderboardSubmitPage() {
       return setError("Please pick your name from the participant list.");
     if (!media) return setError("Please add a photo or video entry.");
     if (!selfie) return setError("Please add a selfie.");
+    if (!qr) return setError("Please add a photo of your Trainer ID QR.");
     if (media.size > MAX_MEDIA_BYTES)
-      return setError("Your entry is too large (max 20 MB).");
+      return setError("Your entry is too large (max 16 MB).");
     if (selfie.size > MAX_SELFIE_BYTES)
-      return setError("Your selfie is too large (max 8 MB).");
+      return setError("Your selfie is too large (max 6 MB).");
+    if (qr.size > MAX_QR_BYTES)
+      return setError("Your Trainer ID QR is too large (max 6 MB).");
 
     setBusy(true);
     try {
@@ -37,6 +42,7 @@ export default function LeaderboardSubmitPage() {
       form.append("name", name.trim());
       form.append("media", media);
       form.append("selfie", selfie);
+      form.append("qr", qr);
 
       const res = await fetch("/api/leaderboard/submit", {
         method: "POST",
@@ -114,7 +120,7 @@ export default function LeaderboardSubmitPage() {
             onChange={(e) => setMedia(e.target.files?.[0] ?? null)}
             className="text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground"
           />
-          <span className="text-xs text-muted">Image or video, up to 20 MB.</span>
+          <span className="text-xs text-muted">Image or video, up to 16 MB.</span>
         </label>
 
         <label className="flex flex-col gap-1.5">
@@ -127,7 +133,21 @@ export default function LeaderboardSubmitPage() {
             onChange={(e) => setSelfie(e.target.files?.[0] ?? null)}
             className="text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground"
           />
-          <span className="text-xs text-muted">A photo of you, up to 8 MB.</span>
+          <span className="text-xs text-muted">A photo of you, up to 6 MB.</span>
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">Trainer ID QR</span>
+          <input
+            type="file"
+            required
+            accept="image/*"
+            onChange={(e) => setQr(e.target.files?.[0] ?? null)}
+            className="text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground"
+          />
+          <span className="text-xs text-muted">
+            A photo or screenshot of your Trainer ID QR code, up to 6 MB.
+          </span>
         </label>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
