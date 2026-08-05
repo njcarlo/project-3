@@ -28,6 +28,45 @@ export interface LeaderboardSubmission {
 
 export const LEADERBOARD_COLLECTION = "leaderboardSubmissions";
 
+// The fixed roster of participants. Submissions must pick a name from this
+// list (enforced on both the client and the server).
+export const PARTICIPANTS = [
+  "Kean",
+  "Dwane",
+  "Neil",
+  "Jec",
+  "Angel",
+  "Koro",
+  "Jim",
+  "Lloyd",
+  "Aljay",
+  "Jessa",
+  "Kiel",
+  "Nho Mer",
+  "Klyde Go",
+  "Kiel Go",
+  "Matthew",
+  "James",
+  "Allyson",
+  "Pirate",
+  "Conlan",
+  "Rivian",
+  "Enzo",
+  "Louie",
+  "Lester",
+  "Thea",
+  "Adrian",
+  "Dan Sherwin",
+  "Dominic",
+  "Smooth",
+  "Rus",
+  "Kyle",
+] as const;
+
+export function isValidParticipant(name: string): boolean {
+  return (PARTICIPANTS as readonly string[]).includes(name);
+}
+
 // Header the client sends the admin password in.
 export const ADMIN_PASSWORD_HEADER = "x-leaderboard-password";
 

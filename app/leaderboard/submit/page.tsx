@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MAX_MEDIA_BYTES, MAX_SELFIE_BYTES } from "@/lib/leaderboard";
+import {
+  MAX_MEDIA_BYTES,
+  MAX_SELFIE_BYTES,
+  PARTICIPANTS,
+  isValidParticipant,
+} from "@/lib/leaderboard";
 
 export default function LeaderboardSubmitPage() {
   const [name, setName] = useState("");
@@ -16,7 +21,9 @@ export default function LeaderboardSubmitPage() {
     e.preventDefault();
     setError(null);
 
-    if (!name.trim()) return setError("Please enter your name.");
+    if (!name.trim()) return setError("Please select your name.");
+    if (!isValidParticipant(name.trim()))
+      return setError("Please pick your name from the participant list.");
     if (!media) return setError("Please add a photo or video entry.");
     if (!selfie) return setError("Please add a selfie.");
     if (media.size > MAX_MEDIA_BYTES)
@@ -81,12 +88,21 @@ export default function LeaderboardSubmitPage() {
           <input
             type="text"
             required
-            maxLength={80}
-            placeholder="Your name"
+            list="participant-list"
+            autoComplete="off"
+            placeholder="Search and select your name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="rounded-lg border border-card-border bg-background px-3 py-2"
           />
+          <datalist id="participant-list">
+            {PARTICIPANTS.map((p) => (
+              <option key={p} value={p} />
+            ))}
+          </datalist>
+          <span className="text-xs text-muted">
+            Start typing to find your name in the list.
+          </span>
         </label>
 
         <label className="flex flex-col gap-1.5">

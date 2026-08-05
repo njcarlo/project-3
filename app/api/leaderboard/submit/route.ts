@@ -5,6 +5,7 @@ import {
   LEADERBOARD_COLLECTION,
   MAX_MEDIA_BYTES,
   MAX_SELFIE_BYTES,
+  isValidParticipant,
   type LeaderboardMediaType,
 } from "@/lib/leaderboard";
 import { uploadLeaderboardFile } from "@/lib/leaderboardStorage";
@@ -36,8 +37,11 @@ export async function POST(req: NextRequest) {
   if (!name) {
     return NextResponse.json({ error: "Name is required." }, { status: 400 });
   }
-  if (name.length > 80) {
-    return NextResponse.json({ error: "Name is too long." }, { status: 400 });
+  if (!isValidParticipant(name)) {
+    return NextResponse.json(
+      { error: "Name must be one of the listed participants." },
+      { status: 400 }
+    );
   }
   if (!(media instanceof File) || media.size === 0) {
     return NextResponse.json(
