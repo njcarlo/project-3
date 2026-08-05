@@ -138,8 +138,27 @@ function Dashboard({
     }
   }
 
+  async function deleteSubmission(id: string) {
+    const res = await fetch("/api/leaderboard/admin/delete", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        [ADMIN_PASSWORD_HEADER]: password,
+      },
+      body: JSON.stringify({ id }),
+    });
+    if (res.ok) {
+      setSubmissions((prev) => (prev ? prev.filter((s) => s.id !== id) : prev));
+    }
+  }
+
   const pending = submissions?.filter((s) => s.status === "pending") ?? [];
-  const scored = submissions?.filter((s) => s.status === "scored") ?? [];
+  // Scored entries mirror the public board: ranked high-to-low by score.
+  const scored = (submissions?.filter((s) => s.status === "scored") ?? [])
+    .slice()
+    .sort(
+      (a, b) => (b.score ?? 0) - (a.score ?? 0) || a.name.localeCompare(b.name)
+    );
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
@@ -172,11 +191,14 @@ function Dashboard({
             title={`Pending review (${pending.length})`}
             items={pending}
             onSetScore={setScore}
+            onDelete={deleteSubmission}
           />
           <Section
-            title={`Scored (${scored.length})`}
+            title={`Leaderboard — scored (${scored.length})`}
             items={scored}
             onSetScore={setScore}
+            onDelete={deleteSubmission}
+            ranked
           />
         </div>
       )}
@@ -188,10 +210,14 @@ function Section({
   title,
   items,
   onSetScore,
+  onDelete,
+  ranked = false,
 }: {
   title: string;
   items: LeaderboardSubmission[];
   onSetScore: (id: string, score: number | null) => void;
+  onDelete: (id: string) => void;
+  ranked?: boolean;
 }) {
   return (
     <section>
@@ -202,8 +228,14 @@ function Section({
         <p className="text-sm text-muted">Nothing here.</p>
       ) : (
         <div className="flex flex-col gap-3">
-          {items.map((s) => (
-            <SubmissionCard key={s.id} submission={s} onSetScore={onSetScore} />
+          {items.map((s, i) => (
+            <SubmissionCard
+              key={s.id}
+              submission={s}
+              onSetScore={onSetScore}
+              onDelete={onDelete}
+              rank={ranked ? i + 1 : null}
+            />
           ))}
         </div>
       )}
@@ -214,9 +246,13 @@ function Section({
 function SubmissionCard({
   submission,
   onSetScore,
+  onDelete,
+  rank,
 }: {
   submission: LeaderboardSubmission;
   onSetScore: (id: string, score: number | null) => void;
+  onDelete: (id: string) => void;
+  rank: number | null;
 }) {
   const [value, setValue] = useState(
     submission.score !== null ? String(submission.score) : ""
@@ -228,9 +264,32 @@ function SubmissionCard({
     onSetScore(submission.id, parsed);
   }
 
+  function remove() {
+    if (
+      confirm(`Delete ${submission.name}'s entry? This can't be undone.`)
+    ) {
+      onDelete(submission.id);
+    }
+  }
+
   return (
     <div className="card rounded-xl p-4">
       <div className="flex flex-wrap items-start gap-4">
+        {rank !== null && (
+          <div
+            className={`flex h-10 w-10 shrink-0 items-center justify-center self-center rounded-full text-lg font-bold ${
+              rank === 1
+                ? "bg-yellow-400 text-yellow-950"
+                : rank === 2
+                  ? "bg-slate-300 text-slate-800"
+                  : rank === 3
+                    ? "bg-amber-600 text-amber-50"
+                    : "bg-card-border text-foreground"
+            }`}
+          >
+            {rank}
+          </div>
+        )}
         <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-background">
           {submission.mediaType === "video" ? (
             <video
@@ -291,6 +350,12 @@ function SubmissionCard({
                 Remove from board
               </button>
             )}
+            <button
+              onClick={remove}
+              className="rounded-full border border-red-500/40 px-4 py-1.5 text-sm text-red-500 hover:bg-red-500/10"
+            >
+              Delete
+            </button>
           </div>
         </div>
       </div>
