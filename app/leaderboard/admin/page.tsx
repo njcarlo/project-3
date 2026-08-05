@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ADMIN_PASSWORD_HEADER, type LeaderboardSubmission } from "@/lib/leaderboard";
+import {
+  ADMIN_PASSWORD_HEADER,
+  PARTICIPANTS,
+  type LeaderboardSubmission,
+} from "@/lib/leaderboard";
 
 const STORAGE_KEY = "leaderboard-admin-password";
 
@@ -91,6 +95,7 @@ function Dashboard({
     null
   );
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -152,9 +157,15 @@ function Dashboard({
     }
   }
 
-  const pending = submissions?.filter((s) => s.status === "pending") ?? [];
+  const term = search.trim().toLowerCase();
+  const visible =
+    submissions?.filter(
+      (s) => term === "" || s.name.toLowerCase().includes(term)
+    ) ?? [];
+  const pending = visible.filter((s) => s.status === "pending");
   // Scored entries mirror the public board: ranked high-to-low by score.
-  const scored = (submissions?.filter((s) => s.status === "scored") ?? [])
+  const scored = visible
+    .filter((s) => s.status === "scored")
     .slice()
     .sort(
       (a, b) => (b.score ?? 0) - (a.score ?? 0) || a.name.localeCompare(b.name)
@@ -186,21 +197,46 @@ function Dashboard({
           No submissions yet.
         </div>
       ) : (
-        <div className="flex flex-col gap-8">
-          <Section
-            title={`Pending review (${pending.length})`}
-            items={pending}
-            onSetScore={setScore}
-            onDelete={deleteSubmission}
-          />
-          <Section
-            title={`Leaderboard — scored (${scored.length})`}
-            items={scored}
-            onSetScore={setScore}
-            onDelete={deleteSubmission}
-            ranked
-          />
-        </div>
+        <>
+          <div className="mb-6">
+            <input
+              type="search"
+              list="admin-participant-list"
+              autoComplete="off"
+              placeholder="Search participants by name..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-lg border border-card-border bg-background px-3 py-2 text-sm"
+            />
+            <datalist id="admin-participant-list">
+              {PARTICIPANTS.map((p) => (
+                <option key={p} value={p} />
+              ))}
+            </datalist>
+          </div>
+
+          {visible.length === 0 ? (
+            <div className="card rounded-xl p-8 text-center text-muted">
+              No participants match &ldquo;{search.trim()}&rdquo;.
+            </div>
+          ) : (
+            <div className="flex flex-col gap-8">
+              <Section
+                title={`Pending review (${pending.length})`}
+                items={pending}
+                onSetScore={setScore}
+                onDelete={deleteSubmission}
+              />
+              <Section
+                title={`Leaderboard — scored (${scored.length})`}
+                items={scored}
+                onSetScore={setScore}
+                onDelete={deleteSubmission}
+                ranked
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
