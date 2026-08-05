@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { PARTICIPANTS } from "@/lib/leaderboard";
 
 interface HistoryItem {
   id: string;
@@ -24,7 +25,7 @@ const POLL_MS = 5000;
 export default function LeaderboardPage() {
   const [entries, setEntries] = useState<BoardEntry[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<BoardEntry | null>(null);
+  const [selectedName, setSelectedName] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -51,14 +52,12 @@ export default function LeaderboardPage() {
     };
   }, []);
 
-  // Keep the open detail view in sync with fresh poll data.
-  const selectedLive =
-    selected && entries
-      ? entries.find((e) => e.name === selected.name) ?? selected
-      : selected;
+  // Look up scores by participant name for the sidebar and the detail view.
+  const byName = new Map((entries ?? []).map((e) => [e.name, e]));
+  const selectedEntry = selectedName ? byName.get(selectedName) ?? null : null;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
+    <div className="mx-auto max-w-5xl px-4 py-10">
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
@@ -86,85 +85,125 @@ export default function LeaderboardPage() {
         </p>
       )}
 
-      {entries === null ? (
-        <p className="text-muted">Loading...</p>
-      ) : entries.length === 0 ? (
-        <div className="card rounded-xl p-8 text-center text-muted">
-          No scored entries yet. Check back soon!
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
+        {/* Participant list — click a name to see their score. */}
+        <aside className="md:w-64 md:shrink-0">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">
+            Participants
+          </h2>
+          <ul className="card divide-y divide-card-border overflow-hidden rounded-xl">
+            {PARTICIPANTS.map((name) => {
+              const entry = byName.get(name);
+              return (
+                <li key={name}>
+                  <button
+                    onClick={() => setSelectedName(name)}
+                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-card-border/30"
+                  >
+                    <span className="truncate">{name}</span>
+                    {entry ? (
+                      <span className="shrink-0 font-bold tabular-nums">
+                        {entry.score}
+                      </span>
+                    ) : (
+                      <span className="shrink-0 text-xs text-muted">—</span>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </aside>
+
+        {/* Ranked board. */}
+        <div className="min-w-0 flex-1">
+          {entries === null ? (
+            <p className="text-muted">Loading...</p>
+          ) : entries.length === 0 ? (
+            <div className="card rounded-xl p-8 text-center text-muted">
+              No scored entries yet. Check back soon!
+            </div>
+          ) : (
+            <ol className="flex flex-col gap-3">
+              {entries.map((entry, i) => (
+                <li key={entry.name}>
+                  <button
+                    onClick={() => setSelectedName(entry.name)}
+                    className="card flex w-full items-center gap-4 rounded-xl p-4 text-left transition-colors hover:bg-card-border/30"
+                  >
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold ${
+                        i === 0
+                          ? "bg-yellow-400 text-yellow-950"
+                          : i === 1
+                            ? "bg-slate-300 text-slate-800"
+                            : i === 2
+                              ? "bg-amber-600 text-amber-50"
+                              : "bg-card-border text-foreground"
+                      }`}
+                    >
+                      {i + 1}
+                    </div>
+
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-background">
+                      {entry.mediaType === "video" ? (
+                        <video
+                          src={entry.mediaUrl}
+                          className="h-full w-full object-cover"
+                          muted
+                          playsInline
+                        />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={entry.mediaUrl}
+                          alt={entry.name}
+                          className="h-full w-full object-cover"
+                        />
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{entry.name}</p>
+                      <p className="text-xs text-muted">
+                        {entry.history.length}{" "}
+                        {entry.history.length === 1 ? "entry" : "entries"} · tap
+                        to view
+                      </p>
+                    </div>
+
+                    <div className="text-right">
+                      <p className="text-2xl font-bold tabular-nums">
+                        {entry.score}
+                      </p>
+                      <p className="text-xs text-muted">best</p>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
-      ) : (
-        <ol className="flex flex-col gap-3">
-          {entries.map((entry, i) => (
-            <li key={entry.name}>
-              <button
-                onClick={() => setSelected(entry)}
-                className="card flex w-full items-center gap-4 rounded-xl p-4 text-left transition-colors hover:bg-card-border/30"
-              >
-                <div
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold ${
-                    i === 0
-                      ? "bg-yellow-400 text-yellow-950"
-                      : i === 1
-                        ? "bg-slate-300 text-slate-800"
-                        : i === 2
-                          ? "bg-amber-600 text-amber-50"
-                          : "bg-card-border text-foreground"
-                  }`}
-                >
-                  {i + 1}
-                </div>
+      </div>
 
-                <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-background">
-                  {entry.mediaType === "video" ? (
-                    <video
-                      src={entry.mediaUrl}
-                      className="h-full w-full object-cover"
-                      muted
-                      playsInline
-                    />
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={entry.mediaUrl}
-                      alt={entry.name}
-                      className="h-full w-full object-cover"
-                    />
-                  )}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{entry.name}</p>
-                  <p className="text-xs text-muted">
-                    {entry.history.length}{" "}
-                    {entry.history.length === 1 ? "entry" : "entries"} · tap to
-                    view
-                  </p>
-                </div>
-
-                <div className="text-right">
-                  <p className="text-2xl font-bold tabular-nums">
-                    {entry.score}
-                  </p>
-                  <p className="text-xs text-muted">best</p>
-                </div>
-              </button>
-            </li>
-          ))}
-        </ol>
-      )}
-
-      {selectedLive && (
-        <EntryModal entry={selectedLive} onClose={() => setSelected(null)} />
+      {selectedName && (
+        <EntryModal
+          name={selectedName}
+          entry={selectedEntry}
+          onClose={() => setSelectedName(null)}
+        />
       )}
     </div>
   );
 }
 
 function EntryModal({
+  name,
   entry,
   onClose,
 }: {
-  entry: BoardEntry;
+  name: string;
+  entry: BoardEntry | null;
   onClose: () => void;
 }) {
   return (
@@ -178,8 +217,10 @@ function EntryModal({
       >
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold tracking-tight">{entry.name}</h2>
-            <p className="text-sm text-muted">Best score: {entry.score}</p>
+            <h2 className="text-xl font-bold tracking-tight">{name}</h2>
+            <p className="text-sm text-muted">
+              {entry ? `Best score: ${entry.score}` : "Not scored yet"}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -189,6 +230,13 @@ function EntryModal({
           </button>
         </div>
 
+        {!entry ? (
+          <p className="rounded-xl bg-background px-4 py-8 text-center text-sm text-muted">
+            No scored entries yet for {name}. Check back once the admin has set a
+            score.
+          </p>
+        ) : (
+          <>
         <div className="mb-4 overflow-hidden rounded-xl bg-background">
           {entry.mediaType === "video" ? (
             <video
@@ -249,6 +297,8 @@ function EntryModal({
             </li>
           ))}
         </ul>
+          </>
+        )}
       </div>
     </div>
   );
