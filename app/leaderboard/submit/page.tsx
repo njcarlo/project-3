@@ -95,7 +95,7 @@ export default function LeaderboardSubmitPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-10">
+    <div className="mx-auto max-w-lg px-4 py-6 sm:py-10">
       <h1 className="mb-2 text-3xl font-bold tracking-tight">Submit your entry</h1>
       <p className="mb-8 text-sm text-muted">
         Find your name, upload your photo or video, add a selfie, and a photo of
@@ -163,7 +163,7 @@ export default function LeaderboardSubmitPage() {
             required
             accept="image/*,video/*"
             onChange={(e) => setMedia(e.target.files?.[0] ?? null)}
-            className="text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground"
+            className="w-full text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground"
           />
           <span className="text-xs text-muted">Image or video, up to 16 MB.</span>
         </label>
@@ -176,7 +176,7 @@ export default function LeaderboardSubmitPage() {
             accept="image/*"
             capture="user"
             onChange={(e) => setSelfie(e.target.files?.[0] ?? null)}
-            className="text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground"
+            className="w-full text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground"
           />
           <span className="text-xs text-muted">A photo of you, up to 6 MB.</span>
         </label>
@@ -188,7 +188,7 @@ export default function LeaderboardSubmitPage() {
             required
             accept="image/*"
             onChange={(e) => setQr(e.target.files?.[0] ?? null)}
-            className="text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground"
+            className="w-full text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground"
           />
           <span className="text-xs text-muted">
             A photo or screenshot of your Trainer ID QR code, up to 6 MB.
@@ -200,7 +200,7 @@ export default function LeaderboardSubmitPage() {
         <button
           type="submit"
           disabled={busy}
-          className="self-start rounded-full bg-accent px-5 py-2 font-medium text-accent-foreground disabled:opacity-50"
+          className="w-full rounded-full bg-accent px-5 py-2.5 font-medium text-accent-foreground disabled:opacity-50 sm:w-auto sm:self-start"
         >
           {busy ? "Submitting..." : "Submit entry"}
         </button>
