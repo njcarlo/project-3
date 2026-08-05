@@ -57,8 +57,8 @@ export default function LeaderboardPage() {
   const selectedEntry = selectedName ? byName.get(selectedName) ?? null : null;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      <div className="mb-6 flex items-end justify-between gap-4">
+    <div className="mx-auto max-w-5xl px-4 py-6 sm:py-10">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
             <span className="relative flex h-2.5 w-2.5">
@@ -86,12 +86,14 @@ export default function LeaderboardPage() {
       )}
 
       <div className="flex flex-col gap-6 md:flex-row md:items-start">
-        {/* Participant list — click a name to see their score. */}
-        <aside className="md:w-64 md:shrink-0">
+        {/* Participant list — click a name to see their score. On mobile it
+            sits below the board and scrolls so it doesn't push the rankings
+            off-screen. */}
+        <aside className="order-2 md:order-1 md:w-64 md:shrink-0">
           <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">
             Participants
           </h2>
-          <ul className="card divide-y divide-card-border overflow-hidden rounded-xl">
+          <ul className="card max-h-72 divide-y divide-card-border overflow-y-auto rounded-xl md:max-h-none">
             {PARTICIPANTS.map((name) => {
               const entry = byName.get(name);
               return (
@@ -115,8 +117,8 @@ export default function LeaderboardPage() {
           </ul>
         </aside>
 
-        {/* Ranked board. */}
-        <div className="min-w-0 flex-1">
+        {/* Ranked board — shown first on mobile. */}
+        <div className="order-1 min-w-0 flex-1 md:order-2">
           {entries === null ? (
             <p className="text-muted">Loading...</p>
           ) : entries.length === 0 ? (
@@ -129,7 +131,7 @@ export default function LeaderboardPage() {
                 <li key={entry.name}>
                   <button
                     onClick={() => setSelectedName(entry.name)}
-                    className="card flex w-full items-center gap-4 rounded-xl p-4 text-left transition-colors hover:bg-card-border/30"
+                    className="card flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-card-border/30 sm:gap-4 sm:p-4"
                   >
                     <div
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold ${

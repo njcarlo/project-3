@@ -55,7 +55,7 @@ function PasswordGate({ onUnlock }: { onUnlock: (pw: string) => void }) {
   }
 
   return (
-    <div className="mx-auto max-w-sm px-4 py-24">
+    <div className="mx-auto max-w-sm px-4 py-16 sm:py-24">
       <div className="card rounded-xl p-6">
         <h1 className="mb-1 text-xl font-bold tracking-tight">Admin access</h1>
         <p className="mb-5 text-sm text-muted">
@@ -172,9 +172,9 @@ function Dashboard({
     );
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
           Leaderboard admin
         </h1>
         <button
