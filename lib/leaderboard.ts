@@ -32,5 +32,11 @@ export const LEADERBOARD_COLLECTION = "leaderboardSubmissions";
 export const ADMIN_PASSWORD_HEADER = "x-leaderboard-password";
 
 // Upload limits. Videos are naturally larger than photos.
-export const MAX_MEDIA_BYTES = 50 * 1024 * 1024; // 50 MB
-export const MAX_SELFIE_BYTES = 10 * 1024 * 1024; // 10 MB
+//
+// Submissions are POSTed as multipart form data to a Route Handler running on
+// Firebase App Hosting (Cloud Run), which rejects any request body larger than
+// ~32 MB over HTTP/1. We cap the entry well under that so the whole request
+// (media + selfie + fields) stays within the platform limit and users get a
+// clean in-app error instead of an opaque 413 from the platform.
+export const MAX_MEDIA_BYTES = 20 * 1024 * 1024; // 20 MB
+export const MAX_SELFIE_BYTES = 8 * 1024 * 1024; // 8 MB

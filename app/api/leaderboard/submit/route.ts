@@ -64,13 +64,13 @@ export async function POST(req: NextRequest) {
   }
   if (media.size > MAX_MEDIA_BYTES) {
     return NextResponse.json(
-      { error: "Entry file is too large (max 50 MB)." },
+      { error: "Entry file is too large (max 20 MB)." },
       { status: 400 }
     );
   }
   if (selfie.size > MAX_SELFIE_BYTES) {
     return NextResponse.json(
-      { error: "Selfie is too large (max 10 MB)." },
+      { error: "Selfie is too large (max 8 MB)." },
       { status: 400 }
     );
   }
