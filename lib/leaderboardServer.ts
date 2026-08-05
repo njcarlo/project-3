@@ -19,6 +19,7 @@ export function serializeSubmission(
     mediaUrl: String(data.mediaUrl ?? ""),
     mediaType: data.mediaType === "video" ? "video" : "image",
     selfieUrl: String(data.selfieUrl ?? ""),
+    qrUrl: String(data.qrUrl ?? ""),
     score: typeof data.score === "number" ? data.score : null,
     status: data.status === "scored" ? "scored" : "pending",
     createdAt: millis(data.createdAt),

@@ -346,21 +346,44 @@ function SubmissionCard({
           )}
         </div>
 
-        <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-background">
-          <a href={submission.selfieUrl} target="_blank" rel="noreferrer">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={submission.selfieUrl}
-              alt={`${submission.name} selfie`}
-              className="h-full w-full object-cover"
-            />
-          </a>
+        <div className="flex flex-col items-center gap-1">
+          <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-background">
+            <a href={submission.selfieUrl} target="_blank" rel="noreferrer">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={submission.selfieUrl}
+                alt={`${submission.name} selfie`}
+                className="h-full w-full object-cover"
+              />
+            </a>
+          </div>
+          <span className="text-[10px] uppercase tracking-wide text-muted">
+            Selfie
+          </span>
         </div>
+
+        {submission.qrUrl && (
+          <div className="flex flex-col items-center gap-1">
+            <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-background">
+              <a href={submission.qrUrl} target="_blank" rel="noreferrer">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={submission.qrUrl}
+                  alt={`${submission.name} Trainer ID QR`}
+                  className="h-full w-full object-contain"
+                />
+              </a>
+            </div>
+            <span className="text-[10px] uppercase tracking-wide text-muted">
+              Trainer QR
+            </span>
+          </div>
+        )}
 
         <div className="min-w-0 flex-1">
           <p className="text-lg font-semibold">{submission.name}</p>
           <p className="text-xs text-muted">
-            Entry: {submission.mediaType} · selfie attached
+            Entry: {submission.mediaType} · selfie · Trainer QR
           </p>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">

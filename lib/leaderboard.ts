@@ -19,6 +19,9 @@ export interface LeaderboardSubmission {
   mediaType: LeaderboardMediaType;
   // A selfie, used to verify the entry belongs to the named participant.
   selfieUrl: string;
+  // A photo of the participant's Trainer ID QR (physical card or screenshot),
+  // used by the admin to verify the trainer account.
+  qrUrl: string;
   // Score set by the admin. null until reviewed/scored.
   score: number | null;
   status: LeaderboardStatus;
@@ -74,8 +77,10 @@ export const ADMIN_PASSWORD_HEADER = "x-leaderboard-password";
 //
 // Submissions are POSTed as multipart form data to a Route Handler running on
 // Firebase App Hosting (Cloud Run), which rejects any request body larger than
-// ~32 MB over HTTP/1. We cap the entry well under that so the whole request
-// (media + selfie + fields) stays within the platform limit and users get a
-// clean in-app error instead of an opaque 413 from the platform.
-export const MAX_MEDIA_BYTES = 20 * 1024 * 1024; // 20 MB
-export const MAX_SELFIE_BYTES = 8 * 1024 * 1024; // 8 MB
+// ~32 MB over HTTP/1. A submission carries three files (entry media, selfie,
+// and Trainer ID QR), so the caps are sized so their combined worst case stays
+// safely under that limit and users get a clean in-app error instead of an
+// opaque 413 from the platform.
+export const MAX_MEDIA_BYTES = 16 * 1024 * 1024; // 16 MB
+export const MAX_SELFIE_BYTES = 6 * 1024 * 1024; // 6 MB
+export const MAX_QR_BYTES = 6 * 1024 * 1024; // 6 MB
