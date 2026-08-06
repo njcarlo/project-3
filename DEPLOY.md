@@ -24,6 +24,9 @@ A Google Cloud service-account **JSON key** used to authenticate the rollout.
    - **Firebase App Hosting Admin** (`roles/firebaseapphosting.admin`)
    - **Cloud Build Editor** (`roles/cloudbuild.builds.editor`)
    - **Service Account User** (`roles/iam.serviceAccountUser`)
+   - **Service Usage Consumer** (`roles/serviceusage.serviceUsageConsumer`) —
+     the CLI checks that the App Hosting API is enabled; without this the
+     rollout fails with a 403 on `serviceusage.googleapis.com`.
 3. Create a JSON key for it and download the file.
 4. Paste the **entire JSON contents** as a repo **Secret** named
    `FIREBASE_SERVICE_ACCOUNT`.
