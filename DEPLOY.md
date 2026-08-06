@@ -27,6 +27,10 @@ A Google Cloud service-account **JSON key** used to authenticate the rollout.
    - **Service Usage Consumer** (`roles/serviceusage.serviceUsageConsumer`) —
      the CLI checks that the App Hosting API is enabled; without this the
      rollout fails with a 403 on `serviceusage.googleapis.com`.
+   - **Developer Connect Admin** (`roles/developerconnect.admin`) — the rollout
+     reads the backend's linked GitHub repository (stored in Developer Connect)
+     and its access token; without this it fails with a 403 on
+     `developerconnect.gitRepositoryLinks.get`.
 3. Create a JSON key for it and download the file.
 4. Paste the **entire JSON contents** as a repo **Secret** named
    `FIREBASE_SERVICE_ACCOUNT`.
