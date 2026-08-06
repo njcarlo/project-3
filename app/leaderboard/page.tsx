@@ -20,7 +20,10 @@ interface BoardEntry {
   history: HistoryItem[];
 }
 
-const POLL_MS = 5000;
+// Poll interval while the tab is visible. Kept relatively high (and paused
+// entirely when the tab is hidden) to minimize Firestore reads / bandwidth so
+// the app stays within the free tier.
+const POLL_MS = 20000;
 
 export default function LeaderboardPage() {
   const [entries, setEntries] = useState<BoardEntry[] | null>(null);
@@ -29,8 +32,11 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     let active = true;
+    let timer: ReturnType<typeof setInterval> | null = null;
 
     async function load() {
+      // Never fetch for a backgrounded tab — those reads are wasted.
+      if (document.hidden) return;
       try {
         const res = await fetch("/api/leaderboard", { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to load leaderboard.");
@@ -44,11 +50,30 @@ export default function LeaderboardPage() {
       }
     }
 
-    load();
-    const timer = setInterval(load, POLL_MS);
+    function startPolling() {
+      if (timer) return;
+      load();
+      timer = setInterval(load, POLL_MS);
+    }
+    function stopPolling() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+    function onVisibility() {
+      if (document.hidden) stopPolling();
+      else startPolling();
+    }
+
+    // Only poll while the tab is in the foreground.
+    if (!document.hidden) startPolling();
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
       active = false;
-      clearInterval(timer);
+      stopPolling();
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
 
@@ -149,17 +174,18 @@ export default function LeaderboardPage() {
 
                     <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-background">
                       {entry.mediaType === "video" ? (
-                        <video
-                          src={entry.mediaUrl}
-                          className="h-full w-full object-cover"
-                          muted
-                          playsInline
-                        />
+                        // Placeholder instead of a <video> so we don't download
+                        // video bytes for every board row — the clip loads only
+                        // when the entry is opened.
+                        <div className="flex h-full w-full items-center justify-center bg-card-border/40 text-xl">
+                          ▶
+                        </div>
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={entry.mediaUrl}
                           alt={entry.name}
+                          loading="lazy"
                           className="h-full w-full object-cover"
                         />
                       )}
@@ -267,19 +293,15 @@ function EntryModal({
               key={h.id}
               className="flex items-center gap-3 rounded-lg border border-card-border bg-background px-3 py-2"
             >
-              <div className="h-10 w-10 shrink-0 overflow-hidden rounded bg-card-border/40">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded bg-card-border/40">
                 {h.mediaType === "video" ? (
-                  <video
-                    src={h.mediaUrl}
-                    className="h-full w-full object-cover"
-                    muted
-                    playsInline
-                  />
+                  <span className="text-sm">▶</span>
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={h.mediaUrl}
                     alt=""
+                    loading="lazy"
                     className="h-full w-full object-cover"
                   />
                 )}

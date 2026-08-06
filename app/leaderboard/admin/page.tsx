@@ -333,6 +333,7 @@ function SubmissionCard({
               className="h-full w-full object-cover"
               controls
               playsInline
+              preload="none"
             />
           ) : (
             <a href={submission.mediaUrl} target="_blank" rel="noreferrer">
