@@ -7,20 +7,14 @@ App Hosting* → **Run workflow**.
 
 ## One-time setup
 
-The workflow needs two things added in the GitHub repo under
-**Settings → Secrets and variables → Actions**:
+The workflow needs **one** thing added in the GitHub repo under
+**Settings → Secrets and variables → Actions**.
 
-### 1. Variable: `APP_HOSTING_BACKEND_ID`
+The backend ID defaults to `mezastar-collector` (this project's backend), so no
+variable is required. If you ever rename the backend, add a repository
+**Variable** `APP_HOSTING_BACKEND_ID` with the new ID to override the default.
 
-Your App Hosting backend ID. Find it with:
-
-```bash
-firebase apphosting:backends:list --project mezastar-collector
-```
-
-Add it under the **Variables** tab as `APP_HOSTING_BACKEND_ID`.
-
-### 2. Secret: `FIREBASE_SERVICE_ACCOUNT`
+### Secret: `FIREBASE_SERVICE_ACCOUNT`
 
 A Google Cloud service-account **JSON key** used to authenticate the rollout.
 
