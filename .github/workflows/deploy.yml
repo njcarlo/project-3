@@ -21,18 +21,10 @@ jobs:
       contents: read
     env:
       FIREBASE_PROJECT_ID: mezastar-collector
-      # Set this repository variable to your App Hosting backend ID
-      # (Settings > Secrets and variables > Actions > Variables).
-      BACKEND_ID: ${{ vars.APP_HOSTING_BACKEND_ID }}
+      # Defaults to this project's App Hosting backend. Override by setting an
+      # APP_HOSTING_BACKEND_ID repository variable if the backend is renamed.
+      BACKEND_ID: ${{ vars.APP_HOSTING_BACKEND_ID || 'mezastar-collector' }}
     steps:
-      - name: Check required config
-        run: |
-          if [ -z "$BACKEND_ID" ]; then
-            echo "::error::Repository variable APP_HOSTING_BACKEND_ID is not set." \
-                 "Add it under Settings > Secrets and variables > Actions > Variables."
-            exit 1
-          fi
-
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
