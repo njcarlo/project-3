@@ -10,8 +10,10 @@ export const dynamic = "force-dynamic";
 interface HistoryItem {
   id: string;
   score: number;
+  // Entry media is optional (a participant may have submitted only a selfie,
+  // which stays private), so these can be empty/null.
   mediaUrl: string;
-  mediaType: "image" | "video";
+  mediaType: "image" | "video" | null;
   at: number;
 }
 
@@ -20,8 +22,9 @@ interface BoardEntry {
   // Best (highest) score — the only one that counts toward ranking.
   score: number;
   // Media for the best-scoring entry, shown on the board and when opened.
+  // May be empty when the participant only submitted a (private) selfie.
   mediaUrl: string;
-  mediaType: "image" | "video";
+  mediaType: "image" | "video" | null;
   // Every scored submission for this participant, newest first.
   history: HistoryItem[];
 }

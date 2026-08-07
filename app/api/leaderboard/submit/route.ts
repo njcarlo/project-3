@@ -45,54 +45,62 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  if (!(media instanceof File) || media.size === 0) {
+  const mediaFile = media instanceof File && media.size > 0 ? media : null;
+  const selfieFile = selfie instanceof File && selfie.size > 0 ? selfie : null;
+  const qrFile = qr instanceof File && qr.size > 0 ? qr : null;
+
+  // Entry media and selfie are each optional, but at least one is required.
+  if (!mediaFile && !selfieFile) {
     return NextResponse.json(
-      { error: "A photo or video entry is required." },
+      { error: "Please upload at least a photo/video entry or a selfie." },
       { status: 400 }
     );
   }
-  if (!(selfie instanceof File) || selfie.size === 0) {
-    return NextResponse.json({ error: "A selfie is required." }, { status: 400 });
-  }
-  if (!(qr instanceof File) || qr.size === 0) {
+  // The Trainer ID QR is always required, and must be an image.
+  if (!qrFile) {
     return NextResponse.json(
       { error: "A Trainer ID QR photo is required." },
       { status: 400 }
     );
   }
 
-  const mediaType = mediaTypeFor(media);
-  if (!mediaType) {
-    return NextResponse.json(
-      { error: "Entry must be an image or a video." },
-      { status: 400 }
-    );
+  let mediaType: LeaderboardMediaType | null = null;
+  if (mediaFile) {
+    mediaType = mediaTypeFor(mediaFile);
+    if (!mediaType) {
+      return NextResponse.json(
+        { error: "Entry must be an image or a video." },
+        { status: 400 }
+      );
+    }
+    if (mediaFile.size > MAX_MEDIA_BYTES) {
+      return NextResponse.json(
+        { error: "Entry file is too large (max 16 MB)." },
+        { status: 400 }
+      );
+    }
   }
-  if (!selfie.type.startsWith("image/")) {
-    return NextResponse.json(
-      { error: "Selfie must be an image." },
-      { status: 400 }
-    );
+  if (selfieFile) {
+    if (!selfieFile.type.startsWith("image/")) {
+      return NextResponse.json(
+        { error: "Selfie must be an image." },
+        { status: 400 }
+      );
+    }
+    if (selfieFile.size > MAX_SELFIE_BYTES) {
+      return NextResponse.json(
+        { error: "Selfie is too large (max 6 MB)." },
+        { status: 400 }
+      );
+    }
   }
-  if (!qr.type.startsWith("image/")) {
+  if (!qrFile.type.startsWith("image/")) {
     return NextResponse.json(
       { error: "Trainer ID QR must be an image." },
       { status: 400 }
     );
   }
-  if (media.size > MAX_MEDIA_BYTES) {
-    return NextResponse.json(
-      { error: "Entry file is too large (max 16 MB)." },
-      { status: 400 }
-    );
-  }
-  if (selfie.size > MAX_SELFIE_BYTES) {
-    return NextResponse.json(
-      { error: "Selfie is too large (max 6 MB)." },
-      { status: 400 }
-    );
-  }
-  if (qr.size > MAX_QR_BYTES) {
+  if (qrFile.size > MAX_QR_BYTES) {
     return NextResponse.json(
       { error: "Trainer ID QR is too large (max 6 MB)." },
       { status: 400 }
@@ -103,9 +111,13 @@ export async function POST(req: NextRequest) {
   const ref = adminDb.collection(LEADERBOARD_COLLECTION).doc();
 
   const [mediaUrl, selfieUrl, qrUrl] = await Promise.all([
-    uploadLeaderboardFile(media, ref.id, "media"),
-    uploadLeaderboardFile(selfie, ref.id, "selfie"),
-    uploadLeaderboardFile(qr, ref.id, "qr"),
+    mediaFile
+      ? uploadLeaderboardFile(mediaFile, ref.id, "media")
+      : Promise.resolve(""),
+    selfieFile
+      ? uploadLeaderboardFile(selfieFile, ref.id, "selfie")
+      : Promise.resolve(""),
+    uploadLeaderboardFile(qrFile, ref.id, "qr"),
   ]);
 
   await ref.set({

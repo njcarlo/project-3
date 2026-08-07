@@ -14,10 +14,12 @@ export type LeaderboardMediaType = "image" | "video";
 export interface LeaderboardSubmission {
   id: string;
   name: string;
-  // The participant's entry media (a photo or a short video).
+  // The participant's entry media (a photo or a short video). Optional — may
+  // be empty if the participant only uploaded a selfie.
   mediaUrl: string;
-  mediaType: LeaderboardMediaType;
+  mediaType: LeaderboardMediaType | null;
   // A selfie, used to verify the entry belongs to the named participant.
+  // Optional, but a submission must include at least a selfie or entry media.
   selfieUrl: string;
   // A photo of the participant's Trainer ID QR (physical card or screenshot),
   // used by the admin to verify the trainer account.

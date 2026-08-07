@@ -326,42 +326,51 @@ function SubmissionCard({
             {rank}
           </div>
         )}
-        <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-background">
-          {submission.mediaType === "video" ? (
-            <video
-              src={submission.mediaUrl}
-              className="h-full w-full object-cover"
-              controls
-              playsInline
-              preload="none"
-            />
-          ) : (
-            <a href={submission.mediaUrl} target="_blank" rel="noreferrer">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={submission.mediaUrl}
-                alt={submission.name}
-                className="h-full w-full object-cover"
-              />
-            </a>
-          )}
-        </div>
-
-        <div className="flex flex-col items-center gap-1">
-          <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-background">
-            <a href={submission.selfieUrl} target="_blank" rel="noreferrer">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={submission.selfieUrl}
-                alt={`${submission.name} selfie`}
-                className="h-full w-full object-cover"
-              />
-            </a>
+        {submission.mediaUrl && (
+          <div className="flex flex-col items-center gap-1">
+            <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-background">
+              {submission.mediaType === "video" ? (
+                <video
+                  src={submission.mediaUrl}
+                  className="h-full w-full object-cover"
+                  controls
+                  playsInline
+                  preload="none"
+                />
+              ) : (
+                <a href={submission.mediaUrl} target="_blank" rel="noreferrer">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={submission.mediaUrl}
+                    alt={submission.name}
+                    className="h-full w-full object-cover"
+                  />
+                </a>
+              )}
+            </div>
+            <span className="text-[10px] uppercase tracking-wide text-muted">
+              Entry
+            </span>
           </div>
-          <span className="text-[10px] uppercase tracking-wide text-muted">
-            Selfie
-          </span>
-        </div>
+        )}
+
+        {submission.selfieUrl && (
+          <div className="flex flex-col items-center gap-1">
+            <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-background">
+              <a href={submission.selfieUrl} target="_blank" rel="noreferrer">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={submission.selfieUrl}
+                  alt={`${submission.name} selfie`}
+                  className="h-full w-full object-cover"
+                />
+              </a>
+            </div>
+            <span className="text-[10px] uppercase tracking-wide text-muted">
+              Selfie
+            </span>
+          </div>
+        )}
 
         {submission.qrUrl && (
           <div className="flex flex-col items-center gap-1">
@@ -384,7 +393,13 @@ function SubmissionCard({
         <div className="min-w-0 flex-1">
           <p className="text-lg font-semibold">{submission.name}</p>
           <p className="text-xs text-muted">
-            Entry: {submission.mediaType} · selfie · Trainer QR
+            {[
+              submission.mediaUrl ? `entry (${submission.mediaType})` : null,
+              submission.selfieUrl ? "selfie" : null,
+              submission.qrUrl ? "Trainer QR" : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
           </p>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
