@@ -2,10 +2,12 @@
 
 import {
   createUserWithEmailAndPassword,
+  getRedirectResult,
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
   signOut as firebaseSignOut,
   type User,
 } from "firebase/auth";
@@ -36,6 +38,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // Complete any redirect-based sign-in (used as a popup fallback, e.g. on
+    // mobile). Errors here surface on the next popup attempt too.
+    getRedirectResult(auth).catch(() => {});
+
     return onAuthStateChanged(auth, async (nextUser) => {
       setUser(nextUser);
       setLoading(false);
@@ -54,7 +60,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       isAdmin,
       signInWithGoogle: async () => {
-        await signInWithPopup(auth, new GoogleAuthProvider());
+        const provider = new GoogleAuthProvider();
+        // Always let the user choose which Google account to use.
+        provider.setCustomParameters({ prompt: "select_account" });
+        try {
+          await signInWithPopup(auth, provider);
+        } catch (err) {
+          const code =
+            typeof err === "object" && err !== null && "code" in err
+              ? String((err as { code: unknown }).code)
+              : "";
+          // Popups are commonly blocked on mobile / in-app browsers — fall
+          // back to a full-page redirect there.
+          if (
+            code === "auth/popup-blocked" ||
+            code === "auth/operation-not-supported-in-this-environment" ||
+            code === "auth/cancelled-popup-request"
+          ) {
+            await signInWithRedirect(auth, provider);
+            return;
+          }
+          // A user closing the popup isn't an error worth surfacing.
+          if (code === "auth/popup-closed-by-user") return;
+          throw err;
+        }
       },
       signInWithEmail: async (email, password) => {
         await signInWithEmailAndPassword(auth, email, password);
