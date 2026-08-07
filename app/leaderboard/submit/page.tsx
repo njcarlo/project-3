@@ -10,6 +10,7 @@ import {
   isValidParticipant,
 } from "@/lib/leaderboard";
 import { compressImage } from "@/lib/imageCompression";
+import { SubmissionGuide } from "@/components/SubmissionGuide";
 
 export default function LeaderboardSubmitPage() {
   const [name, setName] = useState("");
@@ -107,7 +108,7 @@ export default function LeaderboardSubmitPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-6 sm:py-10">
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <h1 className="mb-2 text-3xl font-bold tracking-tight">Submit your entry</h1>
       <p className="mb-8 text-sm text-muted">
         Find your name and upload a photo of your Trainer ID QR. Add a
@@ -115,7 +116,16 @@ export default function LeaderboardSubmitPage() {
         it&apos;s really you.
       </p>
 
-      <form onSubmit={handleSubmit} className="card flex flex-col gap-5 rounded-xl p-5">
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
+        {/* Guideline on the left; form on the right (stacked on mobile). */}
+        <aside className="order-2 md:order-1 md:w-72 md:shrink-0">
+          <SubmissionGuide />
+        </aside>
+
+        <form
+          onSubmit={handleSubmit}
+          className="card order-1 flex flex-1 flex-col gap-5 rounded-xl p-5 md:order-2"
+        >
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">Name</span>
           <div className="relative">
@@ -222,7 +232,8 @@ export default function LeaderboardSubmitPage() {
         >
           {busy ? "Submitting..." : "Submit entry"}
         </button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
