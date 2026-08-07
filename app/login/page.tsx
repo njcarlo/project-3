@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { authErrorMessage } from "@/lib/auth/authErrors";
 
 export default function LoginPage() {
   const { signInWithEmail, signUpWithEmail, signInWithGoogle } = useAuth();
@@ -25,7 +26,7 @@ export default function LoginPage() {
       }
       router.push("/collection");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError(authErrorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -38,7 +39,7 @@ export default function LoginPage() {
       await signInWithGoogle();
       router.push("/collection");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError(authErrorMessage(err));
     } finally {
       setBusy(false);
     }
