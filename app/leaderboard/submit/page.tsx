@@ -9,6 +9,7 @@ import {
   PARTICIPANTS,
   isValidParticipant,
 } from "@/lib/leaderboard";
+import { compressImage } from "@/lib/imageCompression";
 
 export default function LeaderboardSubmitPage() {
   const [name, setName] = useState("");
@@ -31,20 +32,31 @@ export default function LeaderboardSubmitPage() {
     if (!media && !selfie)
       return setError("Please add at least a photo/video entry or a selfie.");
     if (!qr) return setError("Please add a photo of your Trainer ID QR.");
-    if (media && media.size > MAX_MEDIA_BYTES)
-      return setError("Your entry is too large (max 16 MB).");
-    if (selfie && selfie.size > MAX_SELFIE_BYTES)
-      return setError("Your selfie is too large (max 6 MB).");
-    if (qr.size > MAX_QR_BYTES)
-      return setError("Your Trainer ID QR is too large (max 6 MB).");
 
     setBusy(true);
     try {
+      // Shrink images before upload to keep Storage/bandwidth usage low.
+      // Videos and undecodable files pass through unchanged.
+      const [mediaOut, selfieOut, qrOut] = await Promise.all([
+        media ? compressImage(media, { maxDim: 1920, quality: 0.82 }) : null,
+        selfie ? compressImage(selfie, { maxDim: 1280, quality: 0.82 }) : null,
+        // QR kept sharper so it stays scannable.
+        compressImage(qr, { maxDim: 1600, quality: 0.9 }),
+      ]);
+
+      // Validate sizes against the (post-compression) files.
+      if (mediaOut && mediaOut.size > MAX_MEDIA_BYTES)
+        throw new Error("Your entry is too large (max 16 MB).");
+      if (selfieOut && selfieOut.size > MAX_SELFIE_BYTES)
+        throw new Error("Your selfie is too large (max 6 MB).");
+      if (qrOut.size > MAX_QR_BYTES)
+        throw new Error("Your Trainer ID QR is too large (max 6 MB).");
+
       const form = new FormData();
       form.append("name", name.trim());
-      if (media) form.append("media", media);
-      if (selfie) form.append("selfie", selfie);
-      form.append("qr", qr);
+      if (mediaOut) form.append("media", mediaOut);
+      if (selfieOut) form.append("selfie", selfieOut);
+      form.append("qr", qrOut);
 
       const res = await fetch("/api/leaderboard/submit", {
         method: "POST",
