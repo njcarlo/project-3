@@ -17,7 +17,12 @@ export function serializeSubmission(
     id: snap.id,
     name: String(data.name ?? ""),
     mediaUrl: String(data.mediaUrl ?? ""),
-    mediaType: data.mediaType === "video" ? "video" : "image",
+    mediaType:
+      data.mediaType === "video"
+        ? "video"
+        : data.mediaType === "image"
+          ? "image"
+          : null,
     selfieUrl: String(data.selfieUrl ?? ""),
     qrUrl: String(data.qrUrl ?? ""),
     score: typeof data.score === "number" ? data.score : null,

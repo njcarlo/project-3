@@ -8,7 +8,7 @@ interface HistoryItem {
   id: string;
   score: number;
   mediaUrl: string;
-  mediaType: "image" | "video";
+  mediaType: "image" | "video" | null;
   at: number;
 }
 
@@ -16,7 +16,7 @@ interface BoardEntry {
   name: string;
   score: number;
   mediaUrl: string;
-  mediaType: "image" | "video";
+  mediaType: "image" | "video" | null;
   history: HistoryItem[];
 }
 
@@ -172,8 +172,14 @@ export default function LeaderboardPage() {
                       {i + 1}
                     </div>
 
-                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-background">
-                      {entry.mediaType === "video" ? (
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-background">
+                      {!entry.mediaUrl ? (
+                        // Selfie-only entry — nothing public to show, so use a
+                        // name initial.
+                        <div className="flex h-full w-full items-center justify-center bg-card-border/40 text-lg font-bold text-muted">
+                          {entry.name.charAt(0).toUpperCase()}
+                        </div>
+                      ) : entry.mediaType === "video" ? (
                         // Placeholder instead of a <video> so we don't download
                         // video bytes for every board row — the clip loads only
                         // when the entry is opened.
@@ -265,24 +271,26 @@ function EntryModal({
           </p>
         ) : (
           <>
-        <div className="mb-4 overflow-hidden rounded-xl bg-background">
-          {entry.mediaType === "video" ? (
-            <video
-              src={entry.mediaUrl}
-              className="max-h-[50vh] w-full object-contain"
-              controls
-              autoPlay
-              playsInline
-            />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={entry.mediaUrl}
-              alt={entry.name}
-              className="max-h-[50vh] w-full object-contain"
-            />
-          )}
-        </div>
+        {entry.mediaUrl && (
+          <div className="mb-4 overflow-hidden rounded-xl bg-background">
+            {entry.mediaType === "video" ? (
+              <video
+                src={entry.mediaUrl}
+                className="max-h-[50vh] w-full object-contain"
+                controls
+                autoPlay
+                playsInline
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={entry.mediaUrl}
+                alt={entry.name}
+                className="max-h-[50vh] w-full object-contain"
+              />
+            )}
+          </div>
+        )}
 
         <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">
           Score history
@@ -294,7 +302,9 @@ function EntryModal({
               className="flex items-center gap-3 rounded-lg border border-card-border bg-background px-3 py-2"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded bg-card-border/40">
-                {h.mediaType === "video" ? (
+                {!h.mediaUrl ? (
+                  <span className="text-xs text-muted">—</span>
+                ) : h.mediaType === "video" ? (
                   <span className="text-sm">▶</span>
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element

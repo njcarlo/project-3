@@ -28,12 +28,12 @@ export default function LeaderboardSubmitPage() {
     if (!name.trim()) return setError("Please select your name.");
     if (!isValidParticipant(name.trim()))
       return setError("Please pick your name from the participant list.");
-    if (!media) return setError("Please add a photo or video entry.");
-    if (!selfie) return setError("Please add a selfie.");
+    if (!media && !selfie)
+      return setError("Please add at least a photo/video entry or a selfie.");
     if (!qr) return setError("Please add a photo of your Trainer ID QR.");
-    if (media.size > MAX_MEDIA_BYTES)
+    if (media && media.size > MAX_MEDIA_BYTES)
       return setError("Your entry is too large (max 16 MB).");
-    if (selfie.size > MAX_SELFIE_BYTES)
+    if (selfie && selfie.size > MAX_SELFIE_BYTES)
       return setError("Your selfie is too large (max 6 MB).");
     if (qr.size > MAX_QR_BYTES)
       return setError("Your Trainer ID QR is too large (max 6 MB).");
@@ -42,8 +42,8 @@ export default function LeaderboardSubmitPage() {
     try {
       const form = new FormData();
       form.append("name", name.trim());
-      form.append("media", media);
-      form.append("selfie", selfie);
+      if (media) form.append("media", media);
+      if (selfie) form.append("selfie", selfie);
       form.append("qr", qr);
 
       const res = await fetch("/api/leaderboard/submit", {
@@ -98,8 +98,9 @@ export default function LeaderboardSubmitPage() {
     <div className="mx-auto max-w-lg px-4 py-6 sm:py-10">
       <h1 className="mb-2 text-3xl font-bold tracking-tight">Submit your entry</h1>
       <p className="mb-8 text-sm text-muted">
-        Find your name, upload your photo or video, add a selfie, and a photo of
-        your Trainer ID QR so we can verify it&apos;s really you.
+        Find your name and upload a photo of your Trainer ID QR. Add a
+        photo/video entry and/or a selfie (at least one) so we can verify
+        it&apos;s really you.
       </p>
 
       <form onSubmit={handleSubmit} className="card flex flex-col gap-5 rounded-xl p-5">
@@ -157,10 +158,11 @@ export default function LeaderboardSubmitPage() {
         </div>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">Photo or video entry</span>
+          <span className="text-sm font-medium">
+            Photo or video entry <span className="text-muted">(optional)</span>
+          </span>
           <input
             type="file"
-            required
             accept="image/*,video/*"
             onChange={(e) => setMedia(e.target.files?.[0] ?? null)}
             className="w-full text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground"
@@ -169,16 +171,20 @@ export default function LeaderboardSubmitPage() {
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">Selfie</span>
+          <span className="text-sm font-medium">
+            Selfie <span className="text-muted">(optional)</span>
+          </span>
           <input
             type="file"
-            required
             accept="image/*"
             capture="user"
             onChange={(e) => setSelfie(e.target.files?.[0] ?? null)}
             className="w-full text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground"
           />
-          <span className="text-xs text-muted">A photo of you, up to 6 MB.</span>
+          <span className="text-xs text-muted">
+            A photo of you, up to 6 MB. Provide this or a photo/video entry (at
+            least one).
+          </span>
         </label>
 
         <label className="flex flex-col gap-1.5">
