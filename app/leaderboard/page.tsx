@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PARTICIPANTS } from "@/lib/leaderboard";
+import { SubmissionGuide } from "@/components/SubmissionGuide";
 
 interface HistoryItem {
   id: string;
@@ -140,6 +141,10 @@ export default function LeaderboardPage() {
               );
             })}
           </ul>
+
+          <div className="mt-4">
+            <SubmissionGuide />
+          </div>
         </aside>
 
         {/* Ranked board — shown first on mobile. */}
