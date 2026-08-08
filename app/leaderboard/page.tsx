@@ -26,6 +26,17 @@ interface BoardEntry {
 // the app stays within the free tier.
 const POLL_MS = 20000;
 
+// The board shows the top 10; the top 5 are prize winners, each with its own
+// color. Ranks 6–10 appear in a neutral style.
+const PRIZE_STYLES = [
+  { badge: "bg-yellow-400 text-yellow-950", ring: "ring-yellow-400/70" },
+  { badge: "bg-slate-300 text-slate-800", ring: "ring-slate-300/70" },
+  { badge: "bg-amber-600 text-amber-50", ring: "ring-amber-500/70" },
+  { badge: "bg-sky-500 text-white", ring: "ring-sky-400/70" },
+  { badge: "bg-fuchsia-500 text-white", ring: "ring-fuchsia-400/70" },
+];
+const BOARD_LIMIT = 10;
+
 export default function LeaderboardPage() {
   const [entries, setEntries] = useState<BoardEntry[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -96,6 +107,9 @@ export default function LeaderboardPage() {
             </span>
           </div>
           <h1 className="mt-1 text-3xl font-bold tracking-tight">Leaderboard</h1>
+          <p className="mt-1 text-xs text-muted">
+            Top 10 shown · 🏆 top 5 win prizes
+          </p>
         </div>
         <Link
           href="/leaderboard/submit"
@@ -157,21 +171,19 @@ export default function LeaderboardPage() {
             </div>
           ) : (
             <ol className="flex flex-col gap-3">
-              {entries.map((entry, i) => (
+              {entries.slice(0, BOARD_LIMIT).map((entry, i) => {
+                const prize = i < PRIZE_STYLES.length ? PRIZE_STYLES[i] : null;
+                return (
                 <li key={entry.name}>
                   <button
                     onClick={() => setSelectedName(entry.name)}
-                    className="card flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-card-border/30 sm:gap-4 sm:p-4"
+                    className={`card flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-card-border/30 sm:gap-4 sm:p-4 ${
+                      prize ? `ring-2 ring-inset ${prize.ring}` : ""
+                    }`}
                   >
                     <div
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold ${
-                        i === 0
-                          ? "bg-yellow-400 text-yellow-950"
-                          : i === 1
-                            ? "bg-slate-300 text-slate-800"
-                            : i === 2
-                              ? "bg-amber-600 text-amber-50"
-                              : "bg-card-border text-foreground"
+                        prize ? prize.badge : "bg-card-border text-foreground"
                       }`}
                     >
                       {i + 1}
@@ -203,7 +215,14 @@ export default function LeaderboardPage() {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium">{entry.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="truncate font-medium">{entry.name}</p>
+                        {prize && (
+                          <span className="shrink-0 rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
+                            Prize
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-muted">
                         {entry.history.length}{" "}
                         {entry.history.length === 1 ? "entry" : "entries"} · tap
@@ -219,7 +238,8 @@ export default function LeaderboardPage() {
                     </div>
                   </button>
                 </li>
-              ))}
+                );
+              })}
             </ol>
           )}
         </div>
