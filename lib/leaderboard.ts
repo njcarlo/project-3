@@ -99,6 +99,10 @@ export function isValidParticipant(name: string): boolean {
 // Header the client sends the admin password in.
 export const ADMIN_PASSWORD_HEADER = "x-leaderboard-password";
 
+// Header the client sends the submission password in (gates who can submit
+// entries — separate from the admin password).
+export const SUBMIT_PASSWORD_HEADER = "x-leaderboard-submit-password";
+
 // Upload limits. Videos are naturally larger than photos.
 //
 // Submissions are POSTed as multipart form data to a Route Handler running on
