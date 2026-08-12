@@ -4,27 +4,34 @@ import { DEFAULT_BATCH, LEADERBOARD_COLLECTION } from "@/lib/leaderboard";
 import { serializeSubmission } from "@/lib/leaderboardServer";
 import { listAllBatches } from "@/lib/leaderboardConfig";
 
-// Public: a catalog of tournaments (batches) with a summary for each —
-// participant count and the current winner.
+// Public: a catalog of tournaments (batches) with a summary for each — the top
+// 5 players and the champion's selfie.
 export const dynamic = "force-dynamic";
+
+interface TopPlayer {
+  name: string;
+  score: number;
+}
 
 interface TournamentSummary {
   batch: string;
   active: boolean;
+  open: boolean;
   participants: number;
-  scoredCount: number;
-  winner: { name: string; score: number } | null;
+  top: TopPlayer[];
+  // The #1 player's selfie (shown on the catalog), if they submitted one.
+  championSelfieUrl: string | null;
 }
 
 export async function GET() {
-  const { activeBatch, batches } = await listAllBatches();
+  const { activeBatch, batches, closedBatches } = await listAllBatches();
 
-  const stats = new Map<
+  // batch -> (player name -> best score + that entry's selfie)
+  const perBatch = new Map<
     string,
-    { names: Set<string>; scored: number; best: { name: string; score: number } | null }
+    Map<string, { score: number; selfieUrl: string }>
   >();
-  // Seed with known batches so empty tournaments still appear.
-  for (const b of batches) stats.set(b, { names: new Set(), scored: 0, best: null });
+  for (const b of batches) perBatch.set(b, new Map());
 
   const snap = await adminDb
     .collection(LEADERBOARD_COLLECTION)
@@ -34,28 +41,31 @@ export async function GET() {
   for (const doc of snap.docs) {
     const s = serializeSubmission(doc);
     const b = s.batch || DEFAULT_BATCH;
-    const entry =
-      stats.get(b) ?? { names: new Set<string>(), scored: 0, best: null };
-    entry.names.add(s.name);
-    entry.scored += 1;
+    const players = perBatch.get(b) ?? new Map();
+    if (!perBatch.has(b)) perBatch.set(b, players);
     const score = s.score ?? 0;
-    if (!entry.best || score > entry.best.score) {
-      entry.best = { name: s.name, score };
+    const existing = players.get(s.name);
+    if (!existing || score > existing.score) {
+      players.set(s.name, { score, selfieUrl: s.selfieUrl });
     }
-    stats.set(b, entry);
   }
 
-  const tournaments: TournamentSummary[] = [...stats.entries()].map(
-    ([batch, v]) => ({
-      batch,
-      active: batch === activeBatch,
-      participants: v.names.size,
-      scoredCount: v.scored,
-      winner: v.best,
-    })
+  const tournaments: TournamentSummary[] = [...perBatch.entries()].map(
+    ([batch, players]) => {
+      const ranked = [...players.entries()]
+        .map(([name, v]) => ({ name, score: v.score, selfieUrl: v.selfieUrl }))
+        .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+      return {
+        batch,
+        active: batch === activeBatch,
+        open: !closedBatches.includes(batch),
+        participants: players.size,
+        top: ranked.slice(0, 5).map(({ name, score }) => ({ name, score })),
+        championSelfieUrl: ranked[0]?.selfieUrl || null,
+      };
+    }
   );
 
-  // Active first, then numerically ("Batch 2" before "Batch 10").
   tournaments.sort((a, b) =>
     a.active === b.active
       ? a.batch.localeCompare(b.batch, undefined, { numeric: true })

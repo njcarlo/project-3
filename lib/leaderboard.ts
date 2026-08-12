@@ -49,6 +49,8 @@ export interface Registration {
   batch: string;
   name: string;
   contact: string;
+  // Messenger name or link (optional).
+  messenger: string;
   qrUrl: string;
   // Admin-confirmed payment of the tournament fee.
   paid: boolean;
