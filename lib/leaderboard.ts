@@ -40,6 +40,20 @@ export interface LeaderboardSubmission {
 }
 
 export const LEADERBOARD_COLLECTION = "leaderboardSubmissions";
+export const LEADERBOARD_REGISTRATIONS_COLLECTION = "leaderboardRegistrations";
+
+// A player registers for a tournament (batch) with their name, a contact, and
+// a Trainer ID QR. Registered players form that tournament's roster.
+export interface Registration {
+  id: string;
+  batch: string;
+  name: string;
+  contact: string;
+  qrUrl: string;
+  // Admin-confirmed payment of the tournament fee.
+  paid: boolean;
+  createdAt: number;
+}
 
 // The fixed roster of participants. Submissions must pick a name from this
 // list (enforced on both the client and the server).
