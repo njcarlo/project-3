@@ -68,12 +68,6 @@ export default function TournamentLandingPage() {
             Register
           </Link>
           <Link
-            href="/leaderboard/submit"
-            className="rounded-full border border-card-border px-6 py-2.5 font-medium hover:bg-card-border/30"
-          >
-            Submit entry
-          </Link>
-          <Link
             href="/leaderboard"
             className="rounded-full border border-card-border px-6 py-2.5 font-medium hover:bg-card-border/30"
           >

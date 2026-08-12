@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { DEFAULT_BATCH } from "@/lib/leaderboard";
 import { SubmissionGuide } from "@/components/SubmissionGuide";
 
@@ -170,12 +169,6 @@ export default function LeaderboardPage() {
             Top 10 shown · 🏆 top 5 win prizes
           </p>
         </div>
-        <Link
-          href="/leaderboard/submit"
-          className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-accent-foreground"
-        >
-          Submit entry
-        </Link>
       </div>
 
       {/* Tournament (batch) selector. */}

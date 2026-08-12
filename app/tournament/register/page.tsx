@@ -77,18 +77,12 @@ export default function RegisterPage() {
           </h1>
           <p className="mb-6 text-muted">
             Thanks, {name.trim()}. Once the organizer confirms your tournament
-            fee, you can submit your entry.
+            fee, they&apos;ll share the link for submitting your entry.
           </p>
           <div className="flex flex-col gap-2">
             <Link
-              href="/leaderboard/submit"
-              className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-accent-foreground"
-            >
-              Submit an entry
-            </Link>
-            <Link
               href="/tournament"
-              className="rounded-full border border-card-border px-5 py-2 text-sm text-muted hover:text-foreground"
+              className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-accent-foreground"
             >
               Back to tournament
             </Link>
