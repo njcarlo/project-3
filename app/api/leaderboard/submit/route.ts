@@ -11,9 +11,18 @@ import {
 import { uploadLeaderboardFile } from "@/lib/leaderboardStorage";
 import { getLeaderboardConfig } from "@/lib/leaderboardConfig";
 import { getRegisteredNames } from "@/lib/leaderboardRegistrations";
+import { requestHasSubmitAccess } from "@/lib/leaderboardAuth";
 
 // Uploads can be large (short videos), so give the handler room to run.
 export const maxDuration = 60;
+
+// Used by the submit page's password gate to validate access.
+export async function GET(req: NextRequest) {
+  if (!requestHasSubmitAccess(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return NextResponse.json({ ok: true });
+}
 
 function mediaTypeFor(file: File): LeaderboardMediaType | null {
   if (file.type.startsWith("image/")) return "image";
@@ -22,6 +31,10 @@ function mediaTypeFor(file: File): LeaderboardMediaType | null {
 }
 
 export async function POST(req: NextRequest) {
+  if (!requestHasSubmitAccess(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   let form: FormData;
   try {
     form = await req.formData();

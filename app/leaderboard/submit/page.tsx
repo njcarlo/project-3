@@ -2,11 +2,90 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MAX_MEDIA_BYTES, MAX_SELFIE_BYTES, MAX_QR_BYTES } from "@/lib/leaderboard";
+import {
+  MAX_MEDIA_BYTES,
+  MAX_SELFIE_BYTES,
+  MAX_QR_BYTES,
+  SUBMIT_PASSWORD_HEADER,
+} from "@/lib/leaderboard";
 import { compressImage } from "@/lib/imageCompression";
 import { SubmissionGuide } from "@/components/SubmissionGuide";
 
+const STORAGE_KEY = "leaderboard-submit-password";
+
 export default function LeaderboardSubmitPage() {
+  const [password, setPassword] = useState<string | null>(null);
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (saved) setPassword(saved);
+  }, []);
+
+  if (!password) return <SubmitGate onUnlock={setPassword} />;
+  return <SubmitForm password={password} />;
+}
+
+function SubmitGate({ onUnlock }: { onUnlock: (pw: string) => void }) {
+  const [value, setValue] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/leaderboard/submit", {
+        headers: { [SUBMIT_PASSWORD_HEADER]: value },
+      });
+      if (res.status === 401) {
+        setError("Incorrect password.");
+        return;
+      }
+      if (!res.ok) throw new Error();
+      sessionStorage.setItem(STORAGE_KEY, value);
+      onUnlock(value);
+    } catch {
+      setError("Something went wrong. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mx-auto max-w-sm px-4 py-16 sm:py-24">
+      <div className="card rounded-xl p-6">
+        <h1 className="mb-1 text-xl font-bold tracking-tight">
+          Submit an entry
+        </h1>
+        <p className="mb-5 text-sm text-muted">
+          Enter the submission password from the organizer.
+        </p>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <input
+            type="password"
+            autoFocus
+            placeholder="Password"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            className="rounded-lg border border-card-border bg-background px-3 py-2"
+          />
+          {error && <p className="text-sm text-red-500">{error}</p>}
+          <button
+            type="submit"
+            disabled={busy || !value}
+            className="rounded-full bg-accent px-5 py-2 font-medium text-accent-foreground disabled:opacity-50"
+          >
+            {busy ? "Checking..." : "Continue"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function SubmitForm({ password }: { password: string }) {
   const [name, setName] = useState("");
   const [nameQuery, setNameQuery] = useState("");
   const [nameOpen, setNameOpen] = useState(false);
@@ -75,6 +154,7 @@ export default function LeaderboardSubmitPage() {
 
       const res = await fetch("/api/leaderboard/submit", {
         method: "POST",
+        headers: { [SUBMIT_PASSWORD_HEADER]: password },
         body: form,
       });
       const data = await res.json().catch(() => ({}));
