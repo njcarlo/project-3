@@ -6,9 +6,10 @@ import Link from "next/link";
 interface TournamentSummary {
   batch: string;
   active: boolean;
+  open: boolean;
   participants: number;
-  scoredCount: number;
-  winner: { name: string; score: number } | null;
+  top: { name: string; score: number }[];
+  championSelfieUrl: string | null;
 }
 
 export default function TournamentLandingPage() {
@@ -131,23 +132,69 @@ export default function TournamentLandingPage() {
               >
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="font-semibold">{t.batch}</h3>
-                  {t.active && (
-                    <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-500">
-                      Active
-                    </span>
-                  )}
+                  <div className="flex items-center gap-1">
+                    {t.active && (
+                      <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-500">
+                        Active
+                      </span>
+                    )}
+                    {!t.open && (
+                      <span className="rounded-full bg-card-border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted">
+                        Closed
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="mt-1 text-sm text-muted">
                   {t.participants}{" "}
                   {t.participants === 1 ? "player" : "players"} scored
                 </p>
-                {t.winner ? (
-                  <p className="mt-2 text-sm">
-                    🏆 <span className="font-medium">{t.winner.name}</span> ·{" "}
-                    {t.winner.score} pts
-                  </p>
-                ) : (
+
+                {t.top.length === 0 ? (
                   <p className="mt-2 text-sm text-muted">No scores yet</p>
+                ) : (
+                  <ol className="mt-3 flex flex-col gap-1.5">
+                    {t.top.map((p, i) => (
+                      <li key={p.name} className="flex items-center gap-2 text-sm">
+                        <span
+                          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                            i === 0
+                              ? "bg-yellow-400 text-yellow-950"
+                              : i === 1
+                                ? "bg-slate-300 text-slate-800"
+                                : i === 2
+                                  ? "bg-amber-600 text-amber-50"
+                                  : "bg-card-border text-foreground"
+                          }`}
+                        >
+                          {i + 1}
+                        </span>
+                        {i === 0 && (
+                          <span className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-background">
+                            {t.championSelfieUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={t.championSelfieUrl}
+                                alt={p.name}
+                                loading="lazy"
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <span className="flex h-full w-full items-center justify-center text-xs">
+                                🏆
+                              </span>
+                            )}
+                          </span>
+                        )}
+                        <span className="min-w-0 flex-1 truncate font-medium">
+                          {p.name}
+                        </span>
+                        <span className="shrink-0 tabular-nums text-muted">
+                          {p.score}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
                 )}
               </Link>
             ))}

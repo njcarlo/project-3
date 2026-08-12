@@ -103,6 +103,7 @@ function Dashboard({
   const [viewBatch, setViewBatch] = useState<string>("");
   const [newBatch, setNewBatch] = useState("");
   const [batchBusy, setBatchBusy] = useState(false);
+  const [closedBatches, setClosedBatches] = useState<string[]>([]);
   const [registrations, setRegistrations] = useState<Registration[] | null>(
     null
   );
@@ -157,6 +158,7 @@ function Dashboard({
         if (!active) return;
         setBatches(data.batches ?? []);
         setActiveBatch(data.activeBatch ?? "");
+        setClosedBatches(data.closedBatches ?? []);
         setViewBatch((prev) => prev || data.activeBatch || "");
       } catch {
         /* ignore */
@@ -166,6 +168,21 @@ function Dashboard({
       active = false;
     };
   }, []);
+
+  async function toggleBatchOpen(name: string, open: boolean) {
+    const res = await fetch("/api/leaderboard/admin/batches", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        [ADMIN_PASSWORD_HEADER]: password,
+      },
+      body: JSON.stringify({ name, open }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setClosedBatches(data.closedBatches ?? []);
+    }
+  }
 
   async function startNewBatch() {
     const name = newBatch.trim();
@@ -184,6 +201,7 @@ function Dashboard({
         const data = await res.json();
         setBatches(data.batches ?? []);
         setActiveBatch(data.activeBatch ?? name);
+        setClosedBatches(data.closedBatches ?? []);
         setViewBatch(data.activeBatch ?? name);
         setNewBatch("");
       }
@@ -313,6 +331,37 @@ function Dashboard({
             New entries join <b className="text-foreground">{activeBatch}</b>.
           </span>
         </div>
+
+        {/* Open/closed toggle for the viewed tournament. */}
+        {viewBatch && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium uppercase tracking-wide text-muted">
+              Status
+            </span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                closedBatches.includes(viewBatch)
+                  ? "bg-card-border text-muted"
+                  : "bg-emerald-500/15 text-emerald-500"
+              }`}
+            >
+              {closedBatches.includes(viewBatch) ? "Closed" : "Open"}
+            </span>
+            <button
+              onClick={() =>
+                toggleBatchOpen(viewBatch, closedBatches.includes(viewBatch))
+              }
+              className="rounded-full border border-card-border px-4 py-1.5 text-sm text-muted hover:text-foreground"
+            >
+              {closedBatches.includes(viewBatch)
+                ? "Reopen tournament"
+                : "Close tournament"}
+            </button>
+            <span className="text-xs text-muted">
+              Closed = no new registrations or entries.
+            </span>
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center gap-2">
           <input
@@ -641,6 +690,11 @@ function RegistrationsPanel({
               <div className="min-w-0 flex-1">
                 <p className="font-medium">{r.name}</p>
                 <p className="truncate text-xs text-muted">{r.contact}</p>
+                {r.messenger && (
+                  <p className="truncate text-xs text-muted">
+                    💬 {r.messenger}
+                  </p>
+                )}
               </div>
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${

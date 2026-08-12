@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
 
   const name = String(form.get("name") ?? "").trim();
   const contact = String(form.get("contact") ?? "").trim();
+  const messenger = String(form.get("messenger") ?? "").trim();
   const qr = form.get("qr");
   const qrFile = qr instanceof File && qr.size > 0 ? qr : null;
 
@@ -41,6 +42,12 @@ export async function POST(req: NextRequest) {
   }
   if (contact.length > 120) {
     return NextResponse.json({ error: "Contact is too long." }, { status: 400 });
+  }
+  if (messenger.length > 200) {
+    return NextResponse.json(
+      { error: "Messenger is too long." },
+      { status: 400 }
+    );
   }
   if (!qrFile) {
     return NextResponse.json(
@@ -61,7 +68,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { activeBatch } = await getLeaderboardConfig();
+  const { activeBatch, closedBatches } = await getLeaderboardConfig();
+  if (closedBatches.includes(activeBatch)) {
+    return NextResponse.json(
+      { error: `${activeBatch} is closed and not accepting registrations.` },
+      { status: 403 }
+    );
+  }
 
   // Prevent duplicate registration of the same name in the active batch.
   const existing = await adminDb
@@ -84,6 +97,7 @@ export async function POST(req: NextRequest) {
     batch: activeBatch,
     name,
     contact,
+    messenger,
     qrUrl,
     paid: false,
     createdAt: FieldValue.serverTimestamp(),

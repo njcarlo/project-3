@@ -43,7 +43,13 @@ export async function POST(req: NextRequest) {
 
   // The entry joins the active tournament, and the name must be a registered
   // player in that tournament.
-  const { activeBatch } = await getLeaderboardConfig();
+  const { activeBatch, closedBatches } = await getLeaderboardConfig();
+  if (closedBatches.includes(activeBatch)) {
+    return NextResponse.json(
+      { error: `${activeBatch} is closed and not accepting entries.` },
+      { status: 403 }
+    );
+  }
   const roster = await getRegisteredNames(activeBatch);
   if (!roster.includes(name)) {
     return NextResponse.json(

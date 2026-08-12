@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { setActiveBatch } from "@/lib/leaderboardConfig";
+import { setActiveBatch, setBatchOpen } from "@/lib/leaderboardConfig";
 import { requestHasAdminAccess } from "@/lib/leaderboardAuth";
 
-// Admin: create and/or activate a tournament batch. New submissions join the
-// active batch.
+// Admin: create/activate a batch, or open/close an existing one.
+// - { name } -> create (if new) and activate.
+// - { name, open: boolean } -> set the batch's open/closed status.
 export async function POST(req: NextRequest) {
   if (!requestHasAdminAccess(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -18,6 +19,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Batch name is too long." }, { status: 400 });
   }
 
-  const config = await setActiveBatch(name);
+  const config =
+    typeof body.open === "boolean"
+      ? await setBatchOpen(name, body.open)
+      : await setActiveBatch(name);
   return NextResponse.json(config);
 }

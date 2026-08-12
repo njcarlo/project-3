@@ -8,6 +8,7 @@ import { compressImage } from "@/lib/imageCompression";
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
+  const [messenger, setMessenger] = useState("");
   const [qr, setQr] = useState<File | null>(null);
   const [activeBatch, setActiveBatch] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -50,6 +51,7 @@ export default function RegisterPage() {
       const form = new FormData();
       form.append("name", name.trim());
       form.append("contact", contact.trim());
+      form.append("messenger", messenger.trim());
       form.append("qr", qrOut);
 
       const res = await fetch("/api/leaderboard/register", {
@@ -131,6 +133,23 @@ export default function RegisterPage() {
           />
           <span className="text-xs text-muted">
             Kept private — only the organizer sees this.
+          </span>
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">
+            Messenger <span className="text-muted">(optional)</span>
+          </span>
+          <input
+            type="text"
+            maxLength={200}
+            placeholder="Messenger name or profile link"
+            value={messenger}
+            onChange={(e) => setMessenger(e.target.value)}
+            className="rounded-lg border border-card-border bg-background px-3 py-2"
+          />
+          <span className="text-xs text-muted">
+            Optional — helps the organizer reach you on Messenger.
           </span>
         </label>
 

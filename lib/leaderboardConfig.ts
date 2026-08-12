@@ -9,6 +9,8 @@ import {
 export interface LeaderboardConfig {
   activeBatch: string;
   batches: string[];
+  // Batches that are closed (no longer accepting entries).
+  closedBatches: string[];
 }
 
 function configRef() {
@@ -30,7 +32,11 @@ export async function getLeaderboardConfig(): Promise<LeaderboardConfig> {
       ? data.batches.map(String)
       : [activeBatch];
   if (!batches.includes(activeBatch)) batches.unshift(activeBatch);
-  return { activeBatch, batches };
+  const closedBatches =
+    data && Array.isArray(data.closedBatches)
+      ? data.closedBatches.map(String)
+      : [];
+  return { activeBatch, batches, closedBatches };
 }
 
 /**
@@ -39,11 +45,35 @@ export async function getLeaderboardConfig(): Promise<LeaderboardConfig> {
  * full-collection scan — to keep Firestore reads minimal.
  */
 export async function listAllBatches(): Promise<LeaderboardConfig> {
-  const { activeBatch, batches } = await getLeaderboardConfig();
+  const { activeBatch, batches, closedBatches } = await getLeaderboardConfig();
   const rest = batches
     .filter((b) => b !== activeBatch)
     .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-  return { activeBatch, batches: [activeBatch, ...rest] };
+  return { activeBatch, batches: [activeBatch, ...rest], closedBatches };
+}
+
+/** Opens or closes a batch for new entries. */
+export async function setBatchOpen(
+  name: string,
+  open: boolean
+): Promise<LeaderboardConfig> {
+  const clean = name.trim();
+  if (!clean) throw new Error("Batch name is required.");
+  await configRef().set(
+    {
+      closedBatches: open
+        ? FieldValue.arrayRemove(clean)
+        : FieldValue.arrayUnion(clean),
+    },
+    { merge: true }
+  );
+  return getLeaderboardConfig();
+}
+
+/** Whether a batch is currently accepting entries. */
+export async function isBatchOpen(name: string): Promise<boolean> {
+  const { closedBatches } = await getLeaderboardConfig();
+  return !closedBatches.includes(name);
 }
 
 /** Creates (if new) and activates a batch. Atomic via arrayUnion. */

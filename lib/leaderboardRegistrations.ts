@@ -21,6 +21,7 @@ export function serializeRegistration(snap: DocumentSnapshot): Registration {
       typeof data.batch === "string" && data.batch ? data.batch : DEFAULT_BATCH,
     name: String(data.name ?? ""),
     contact: String(data.contact ?? ""),
+    messenger: String(data.messenger ?? ""),
     qrUrl: String(data.qrUrl ?? ""),
     paid: data.paid === true,
     createdAt: millis(data.createdAt),
