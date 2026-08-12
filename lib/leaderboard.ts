@@ -9,11 +9,19 @@
 
 export type LeaderboardStatus = "pending" | "scored";
 
+// Each tournament run is a "batch". New submissions are tagged with the
+// currently active batch; the leaderboard can be viewed per batch.
+export const DEFAULT_BATCH = "Batch 1";
+export const LEADERBOARD_CONFIG_COLLECTION = "leaderboardConfig";
+export const LEADERBOARD_CONFIG_DOC = "state";
+
 export type LeaderboardMediaType = "image" | "video";
 
 export interface LeaderboardSubmission {
   id: string;
   name: string;
+  // Which tournament run this entry belongs to.
+  batch: string;
   // The participant's entry media (a photo or a short video). Optional — may
   // be empty if the participant only uploaded a selfie.
   mediaUrl: string;

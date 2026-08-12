@@ -1,5 +1,5 @@
 import type { DocumentSnapshot } from "firebase-admin/firestore";
-import type { LeaderboardSubmission } from "@/lib/leaderboard";
+import { DEFAULT_BATCH, type LeaderboardSubmission } from "@/lib/leaderboard";
 
 function millis(value: unknown): number {
   if (value && typeof value === "object" && "toMillis" in value) {
@@ -16,6 +16,7 @@ export function serializeSubmission(
   return {
     id: snap.id,
     name: String(data.name ?? ""),
+    batch: typeof data.batch === "string" && data.batch ? data.batch : DEFAULT_BATCH,
     mediaUrl: String(data.mediaUrl ?? ""),
     mediaType:
       data.mediaType === "video"

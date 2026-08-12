@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { PARTICIPANTS } from "@/lib/leaderboard";
+import { DEFAULT_BATCH, PARTICIPANTS } from "@/lib/leaderboard";
 import { SubmissionGuide } from "@/components/SubmissionGuide";
 
 interface HistoryItem {
@@ -41,16 +41,48 @@ export default function LeaderboardPage() {
   const [entries, setEntries] = useState<BoardEntry[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedName, setSelectedName] = useState<string | null>(null);
+  const [batches, setBatches] = useState<string[]>([]);
+  const [batch, setBatch] = useState<string | null>(null);
+
+  // Load the list of tournament batches once, and default to the active one.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/leaderboard/batches", {
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        if (!active) return;
+        setBatches(data.batches ?? []);
+        setBatch((prev) => prev ?? data.activeBatch ?? DEFAULT_BATCH);
+      } catch {
+        // Still let the board load (default batch); dropdown stays hidden.
+        if (active) setBatch((prev) => prev ?? DEFAULT_BATCH);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
     let timer: ReturnType<typeof setInterval> | null = null;
 
+    // Wait until we know which batch to show, so the board is fetched once.
+    if (!batch) return;
+    const currentBatch = batch;
+
     async function load() {
       // Never fetch for a backgrounded tab — those reads are wasted.
       if (document.hidden) return;
       try {
-        const res = await fetch("/api/leaderboard", { cache: "no-store" });
+        const res = await fetch(
+          `/api/leaderboard?batch=${encodeURIComponent(currentBatch)}`,
+          { cache: "no-store" }
+        );
         if (!res.ok) throw new Error("Failed to load leaderboard.");
         const data = await res.json();
         if (active) {
@@ -78,7 +110,6 @@ export default function LeaderboardPage() {
       else startPolling();
     }
 
-    // Only poll while the tab is in the foreground.
     if (!document.hidden) startPolling();
     document.addEventListener("visibilitychange", onVisibility);
 
@@ -87,7 +118,7 @@ export default function LeaderboardPage() {
       stopPolling();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, []);
+  }, [batch]);
 
   // Look up scores by participant name for the sidebar and the detail view.
   const byName = new Map((entries ?? []).map((e) => [e.name, e]));
@@ -118,6 +149,33 @@ export default function LeaderboardPage() {
           Submit entry
         </Link>
       </div>
+
+      {/* Tournament (batch) selector. */}
+      {batches.length > 0 && (
+        <div className="mb-6 flex items-center gap-2">
+          <label
+            htmlFor="batch-select"
+            className="text-xs font-medium uppercase tracking-wide text-muted"
+          >
+            Tournament
+          </label>
+          <select
+            id="batch-select"
+            value={batch ?? ""}
+            onChange={(e) => {
+              setEntries(null); // show loading while the new batch loads
+              setBatch(e.target.value);
+            }}
+            className="rounded-lg border border-card-border bg-background px-3 py-1.5 text-sm"
+          >
+            {batches.map((b) => (
+              <option key={b} value={b}>
+                {b}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {error && (
         <p className="mb-4 rounded-lg border border-card-border bg-background px-3 py-2 text-sm text-muted">
