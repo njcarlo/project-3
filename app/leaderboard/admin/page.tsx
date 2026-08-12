@@ -6,6 +6,7 @@ import {
   DEFAULT_BATCH,
   PARTICIPANTS,
   type LeaderboardSubmission,
+  type Registration,
 } from "@/lib/leaderboard";
 
 const STORAGE_KEY = "leaderboard-admin-password";
@@ -102,6 +103,47 @@ function Dashboard({
   const [viewBatch, setViewBatch] = useState<string>("");
   const [newBatch, setNewBatch] = useState("");
   const [batchBusy, setBatchBusy] = useState(false);
+  const [registrations, setRegistrations] = useState<Registration[] | null>(
+    null
+  );
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/leaderboard/admin/registrations", {
+          headers: { [ADMIN_PASSWORD_HEADER]: password },
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (active) setRegistrations(data.registrations ?? []);
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [password]);
+
+  async function togglePaid(id: string, paid: boolean) {
+    const res = await fetch("/api/leaderboard/admin/registrations", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        [ADMIN_PASSWORD_HEADER]: password,
+      },
+      body: JSON.stringify({ id, paid }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const updated = data.registration as Registration;
+      setRegistrations((prev) =>
+        prev ? prev.map((r) => (r.id === id ? updated : r)) : prev
+      );
+    }
+  }
 
   useEffect(() => {
     let active = true;
@@ -294,6 +336,16 @@ function Dashboard({
           go into it, and it gets its own leaderboard.
         </p>
       </div>
+
+      {/* Registrations for the selected batch, with fee confirmation. */}
+      <RegistrationsPanel
+        registrations={(registrations ?? []).filter(
+          (r) => (r.batch || DEFAULT_BATCH) === viewBatch
+        )}
+        loading={registrations === null}
+        batch={viewBatch}
+        onTogglePaid={togglePaid}
+      />
 
       {submissions === null ? (
         <p className="text-muted">Loading...</p>
@@ -542,5 +594,77 @@ function SubmissionCard({
         </div>
       </div>
     </div>
+  );
+}
+
+function RegistrationsPanel({
+  registrations,
+  loading,
+  batch,
+  onTogglePaid,
+}: {
+  registrations: Registration[];
+  loading: boolean;
+  batch: string;
+  onTogglePaid: (id: string, paid: boolean) => void;
+}) {
+  const paidCount = registrations.filter((r) => r.paid).length;
+
+  return (
+    <section className="mb-8">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
+        Registrations — {batch} ({paidCount}/{registrations.length} paid)
+      </h2>
+      {loading ? (
+        <p className="text-sm text-muted">Loading...</p>
+      ) : registrations.length === 0 ? (
+        <p className="text-sm text-muted">No registrations in {batch} yet.</p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {registrations.map((r) => (
+            <div
+              key={r.id}
+              className="card flex flex-wrap items-center gap-3 rounded-xl p-3"
+            >
+              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-background">
+                {r.qrUrl && (
+                  <a href={r.qrUrl} target="_blank" rel="noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={r.qrUrl}
+                      alt={`${r.name} Trainer ID QR`}
+                      className="h-full w-full object-contain"
+                    />
+                  </a>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium">{r.name}</p>
+                <p className="truncate text-xs text-muted">{r.contact}</p>
+              </div>
+              <span
+                className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                  r.paid
+                    ? "bg-emerald-500/15 text-emerald-500"
+                    : "bg-card-border text-muted"
+                }`}
+              >
+                {r.paid ? "Paid" : "Unpaid"}
+              </span>
+              <button
+                onClick={() => onTogglePaid(r.id, !r.paid)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium ${
+                  r.paid
+                    ? "border border-card-border text-muted hover:text-foreground"
+                    : "bg-emerald-500 text-white"
+                }`}
+              >
+                {r.paid ? "Mark unpaid" : "Confirm payment"}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

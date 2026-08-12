@@ -56,7 +56,12 @@ export default function LeaderboardPage() {
         const data = await res.json();
         if (!active) return;
         setBatches(data.batches ?? []);
-        setBatch((prev) => prev ?? data.activeBatch ?? DEFAULT_BATCH);
+        // Honor a ?batch= link (e.g. from the tournament catalog); otherwise
+        // default to the active batch.
+        const urlBatch = new URLSearchParams(window.location.search).get(
+          "batch"
+        );
+        setBatch((prev) => prev ?? urlBatch ?? data.activeBatch ?? DEFAULT_BATCH);
       } catch {
         // Still let the board load (default batch); dropdown stays hidden.
         if (active) setBatch((prev) => prev ?? DEFAULT_BATCH);

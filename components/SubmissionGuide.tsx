@@ -9,22 +9,20 @@ export function SubmissionGuide() {
 
       <ol className="flex list-decimal flex-col gap-2 pl-4 text-muted marker:text-muted">
         <li>
-          <span className="text-foreground">Find your name</span> — tap the Name
-          field and type to search, then tap your name from the list.
+          <span className="text-foreground">Register</span> — your name, a
+          contact, and your Trainer ID QR.
         </li>
         <li>
-          <span className="text-foreground">Add your Trainer ID QR</span>{" "}
-          (required) — a clear photo or screenshot of the QR code.
+          <span className="text-foreground">Get your fee confirmed</span> by the
+          organizer.
         </li>
         <li>
-          <span className="text-foreground">
-            Add a photo/video and/or a selfie
-          </span>{" "}
-          — at least one of the two.
+          <span className="text-foreground">Submit your run</span> — pick your
+          registered name and add a photo/video and/or a selfie (at least one).
         </li>
         <li>
-          <span className="text-foreground">Tap Submit.</span> An admin reviews
-          your entry and sets your score.
+          <span className="text-foreground">Climb the board.</span> An admin sets
+          your score; your best score ranks you.
         </li>
       </ol>
 

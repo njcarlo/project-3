@@ -1,14 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  MAX_MEDIA_BYTES,
-  MAX_SELFIE_BYTES,
-  MAX_QR_BYTES,
-  PARTICIPANTS,
-  isValidParticipant,
-} from "@/lib/leaderboard";
+import { MAX_MEDIA_BYTES, MAX_SELFIE_BYTES, MAX_QR_BYTES } from "@/lib/leaderboard";
 import { compressImage } from "@/lib/imageCompression";
 import { SubmissionGuide } from "@/components/SubmissionGuide";
 
@@ -16,6 +10,7 @@ export default function LeaderboardSubmitPage() {
   const [name, setName] = useState("");
   const [nameQuery, setNameQuery] = useState("");
   const [nameOpen, setNameOpen] = useState(false);
+  const [names, setNames] = useState<string[]>([]);
   const [media, setMedia] = useState<File | null>(null);
   const [selfie, setSelfie] = useState<File | null>(null);
   const [qr, setQr] = useState<File | null>(null);
@@ -23,16 +18,35 @@ export default function LeaderboardSubmitPage() {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
+  // Roster = players registered for the active tournament.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/leaderboard/participants", {
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (active) setNames(data.names ?? []);
+      } catch {
+        /* leave roster empty */
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
     if (!name.trim()) return setError("Please select your name.");
-    if (!isValidParticipant(name.trim()))
-      return setError("Please pick your name from the participant list.");
+    if (!names.includes(name.trim()))
+      return setError("Please pick your registered name from the list.");
     if (!media && !selfie)
       return setError("Please add at least a photo/video entry or a selfie.");
-    if (!qr) return setError("Please add a photo of your Trainer ID QR.");
 
     setBusy(true);
     try {
@@ -42,7 +56,7 @@ export default function LeaderboardSubmitPage() {
         media ? compressImage(media, { maxDim: 1920, quality: 0.82 }) : null,
         selfie ? compressImage(selfie, { maxDim: 1280, quality: 0.82 }) : null,
         // QR kept sharper so it stays scannable.
-        compressImage(qr, { maxDim: 1600, quality: 0.9 }),
+        qr ? compressImage(qr, { maxDim: 1600, quality: 0.9 }) : null,
       ]);
 
       // Validate sizes against the (post-compression) files.
@@ -50,14 +64,14 @@ export default function LeaderboardSubmitPage() {
         throw new Error("Your entry is too large (max 16 MB).");
       if (selfieOut && selfieOut.size > MAX_SELFIE_BYTES)
         throw new Error("Your selfie is too large (max 6 MB).");
-      if (qrOut.size > MAX_QR_BYTES)
+      if (qrOut && qrOut.size > MAX_QR_BYTES)
         throw new Error("Your Trainer ID QR is too large (max 6 MB).");
 
       const form = new FormData();
       form.append("name", name.trim());
       if (mediaOut) form.append("media", mediaOut);
       if (selfieOut) form.append("selfie", selfieOut);
-      form.append("qr", qrOut);
+      if (qrOut) form.append("qr", qrOut);
 
       const res = await fetch("/api/leaderboard/submit", {
         method: "POST",
@@ -98,8 +112,8 @@ export default function LeaderboardSubmitPage() {
   const query = nameQuery.trim().toLowerCase();
   const filteredNames =
     query === ""
-      ? PARTICIPANTS
-      : PARTICIPANTS.filter((p) => p.toLowerCase().includes(query));
+      ? names
+      : names.filter((p) => p.toLowerCase().includes(query));
 
   function selectName(p: string) {
     setName(p);
@@ -111,9 +125,8 @@ export default function LeaderboardSubmitPage() {
     <div className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <h1 className="mb-2 text-3xl font-bold tracking-tight">Submit your entry</h1>
       <p className="mb-8 text-sm text-muted">
-        Find your name and upload a photo of your Trainer ID QR. Add a
-        photo/video entry and/or a selfie (at least one) so we can verify
-        it&apos;s really you.
+        Pick your registered name and add a photo/video entry and/or a selfie
+        (at least one) so we can verify it&apos;s really you.
       </p>
 
       <div className="flex flex-col gap-6 md:flex-row md:items-start">
@@ -148,7 +161,9 @@ export default function LeaderboardSubmitPage() {
               <ul className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-lg border border-card-border bg-background shadow-lg">
                 {filteredNames.length === 0 ? (
                   <li className="px-3 py-2 text-sm text-muted">
-                    No participant found.
+                    {names.length === 0
+                      ? "No registered players yet."
+                      : "No match."}
                   </li>
                 ) : (
                   filteredNames.map((p) => (
@@ -172,9 +187,17 @@ export default function LeaderboardSubmitPage() {
           </div>
           {name ? (
             <span className="text-xs text-emerald-500">✓ Selected: {name}</span>
+          ) : names.length === 0 ? (
+            <span className="text-xs text-muted">
+              No registered players yet.{" "}
+              <Link href="/tournament/register" className="text-accent underline">
+                Register first
+              </Link>
+              .
+            </span>
           ) : (
             <span className="text-xs text-muted">
-              Tap the field and type to find your name in the list.
+              Tap the field and type to find your registered name.
             </span>
           )}
         </div>
@@ -210,16 +233,17 @@ export default function LeaderboardSubmitPage() {
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">Trainer ID QR</span>
+          <span className="text-sm font-medium">
+            Trainer ID QR <span className="text-muted">(optional)</span>
+          </span>
           <input
             type="file"
-            required
             accept="image/*"
             onChange={(e) => setQr(e.target.files?.[0] ?? null)}
             className="w-full text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-accent-foreground"
           />
           <span className="text-xs text-muted">
-            A photo or screenshot of your Trainer ID QR code, up to 6 MB.
+            Only if you didn&apos;t provide it at registration. Up to 6 MB.
           </span>
         </label>
 

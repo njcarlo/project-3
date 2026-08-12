@@ -6,11 +6,11 @@ import {
   MAX_MEDIA_BYTES,
   MAX_SELFIE_BYTES,
   MAX_QR_BYTES,
-  isValidParticipant,
   type LeaderboardMediaType,
 } from "@/lib/leaderboard";
 import { uploadLeaderboardFile } from "@/lib/leaderboardStorage";
 import { getLeaderboardConfig } from "@/lib/leaderboardConfig";
+import { getRegisteredNames } from "@/lib/leaderboardRegistrations";
 
 // Uploads can be large (short videos), so give the handler room to run.
 export const maxDuration = 60;
@@ -40,12 +40,18 @@ export async function POST(req: NextRequest) {
   if (!name) {
     return NextResponse.json({ error: "Name is required." }, { status: 400 });
   }
-  if (!isValidParticipant(name)) {
+
+  // The entry joins the active tournament, and the name must be a registered
+  // player in that tournament.
+  const { activeBatch } = await getLeaderboardConfig();
+  const roster = await getRegisteredNames(activeBatch);
+  if (!roster.includes(name)) {
     return NextResponse.json(
-      { error: "Name must be one of the listed participants." },
+      { error: "Please register for the tournament before submitting." },
       { status: 400 }
     );
   }
+
   const mediaFile = media instanceof File && media.size > 0 ? media : null;
   const selfieFile = selfie instanceof File && selfie.size > 0 ? selfie : null;
   const qrFile = qr instanceof File && qr.size > 0 ? qr : null;
@@ -57,14 +63,6 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  // The Trainer ID QR is always required, and must be an image.
-  if (!qrFile) {
-    return NextResponse.json(
-      { error: "A Trainer ID QR photo is required." },
-      { status: 400 }
-    );
-  }
-
   let mediaType: LeaderboardMediaType | null = null;
   if (mediaFile) {
     mediaType = mediaTypeFor(mediaFile);
@@ -95,21 +93,20 @@ export async function POST(req: NextRequest) {
       );
     }
   }
-  if (!qrFile.type.startsWith("image/")) {
-    return NextResponse.json(
-      { error: "Trainer ID QR must be an image." },
-      { status: 400 }
-    );
+  if (qrFile) {
+    if (!qrFile.type.startsWith("image/")) {
+      return NextResponse.json(
+        { error: "Trainer ID QR must be an image." },
+        { status: 400 }
+      );
+    }
+    if (qrFile.size > MAX_QR_BYTES) {
+      return NextResponse.json(
+        { error: "Trainer ID QR is too large (max 6 MB)." },
+        { status: 400 }
+      );
+    }
   }
-  if (qrFile.size > MAX_QR_BYTES) {
-    return NextResponse.json(
-      { error: "Trainer ID QR is too large (max 6 MB)." },
-      { status: 400 }
-    );
-  }
-
-  // New entries join the currently active tournament batch.
-  const { activeBatch } = await getLeaderboardConfig();
 
   // Reserve the document id first so uploads land under a stable path.
   const ref = adminDb.collection(LEADERBOARD_COLLECTION).doc();
@@ -121,7 +118,7 @@ export async function POST(req: NextRequest) {
     selfieFile
       ? uploadLeaderboardFile(selfieFile, ref.id, "selfie")
       : Promise.resolve(""),
-    uploadLeaderboardFile(qrFile, ref.id, "qr"),
+    qrFile ? uploadLeaderboardFile(qrFile, ref.id, "qr") : Promise.resolve(""),
   ]);
 
   await ref.set({
