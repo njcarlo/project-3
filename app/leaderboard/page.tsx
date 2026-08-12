@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { DEFAULT_BATCH, PARTICIPANTS } from "@/lib/leaderboard";
+import { DEFAULT_BATCH } from "@/lib/leaderboard";
 import { SubmissionGuide } from "@/components/SubmissionGuide";
 
 interface HistoryItem {
@@ -43,6 +43,29 @@ export default function LeaderboardPage() {
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [batches, setBatches] = useState<string[]>([]);
   const [batch, setBatch] = useState<string | null>(null);
+  const [participants, setParticipants] = useState<string[]>([]);
+
+  // Roster for the selected tournament = its registered players.
+  useEffect(() => {
+    if (!batch) return;
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/leaderboard/participants?batch=${encodeURIComponent(batch)}`,
+          { cache: "no-store" }
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        if (active) setParticipants(data.names ?? []);
+      } catch {
+        /* leave roster empty */
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [batch]);
 
   // Load the list of tournament batches once, and default to the active one.
   useEffect(() => {
@@ -197,26 +220,32 @@ export default function LeaderboardPage() {
             Participants
           </h2>
           <ul className="card max-h-72 divide-y divide-card-border overflow-y-auto rounded-xl md:max-h-none">
-            {PARTICIPANTS.map((name) => {
-              const entry = byName.get(name);
-              return (
-                <li key={name}>
-                  <button
-                    onClick={() => setSelectedName(name)}
-                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-card-border/30"
-                  >
-                    <span className="truncate">{name}</span>
-                    {entry ? (
-                      <span className="shrink-0 font-bold tabular-nums">
-                        {entry.score}
-                      </span>
-                    ) : (
-                      <span className="shrink-0 text-xs text-muted">—</span>
-                    )}
-                  </button>
-                </li>
-              );
-            })}
+            {participants.length === 0 ? (
+              <li className="px-3 py-3 text-sm text-muted">
+                No registered players yet.
+              </li>
+            ) : (
+              participants.map((name) => {
+                const entry = byName.get(name);
+                return (
+                  <li key={name}>
+                    <button
+                      onClick={() => setSelectedName(name)}
+                      className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-card-border/30"
+                    >
+                      <span className="truncate">{name}</span>
+                      {entry ? (
+                        <span className="shrink-0 font-bold tabular-nums">
+                          {entry.score}
+                        </span>
+                      ) : (
+                        <span className="shrink-0 text-xs text-muted">—</span>
+                      )}
+                    </button>
+                  </li>
+                );
+              })
+            )}
           </ul>
 
           <div className="mt-4">
