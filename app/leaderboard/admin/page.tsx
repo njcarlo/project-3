@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   ADMIN_PASSWORD_HEADER,
+  DEFAULT_BATCH,
   PARTICIPANTS,
   type LeaderboardSubmission,
 } from "@/lib/leaderboard";
@@ -96,6 +97,58 @@ function Dashboard({
   );
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [batches, setBatches] = useState<string[]>([]);
+  const [activeBatch, setActiveBatch] = useState<string>("");
+  const [viewBatch, setViewBatch] = useState<string>("");
+  const [newBatch, setNewBatch] = useState("");
+  const [batchBusy, setBatchBusy] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/leaderboard/batches", {
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!active) return;
+        setBatches(data.batches ?? []);
+        setActiveBatch(data.activeBatch ?? "");
+        setViewBatch((prev) => prev || data.activeBatch || "");
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function startNewBatch() {
+    const name = newBatch.trim();
+    if (!name) return;
+    setBatchBusy(true);
+    try {
+      const res = await fetch("/api/leaderboard/admin/batches", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          [ADMIN_PASSWORD_HEADER]: password,
+        },
+        body: JSON.stringify({ name }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBatches(data.batches ?? []);
+        setActiveBatch(data.activeBatch ?? name);
+        setViewBatch(data.activeBatch ?? name);
+        setNewBatch("");
+      }
+    } finally {
+      setBatchBusy(false);
+    }
+  }
 
   useEffect(() => {
     let active = true;
@@ -160,7 +213,9 @@ function Dashboard({
   const term = search.trim().toLowerCase();
   const visible =
     submissions?.filter(
-      (s) => term === "" || s.name.toLowerCase().includes(term)
+      (s) =>
+        (!viewBatch || (s.batch || DEFAULT_BATCH) === viewBatch) &&
+        (term === "" || s.name.toLowerCase().includes(term))
     ) ?? [];
   const pending = visible.filter((s) => s.status === "pending");
   // Scored entries mirror the public board: ranked high-to-low by score.
@@ -190,6 +245,56 @@ function Dashboard({
 
       {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
 
+      {/* Tournament batch controls. */}
+      <div className="card mb-6 flex flex-col gap-3 rounded-xl p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <label
+            htmlFor="admin-batch"
+            className="text-xs font-medium uppercase tracking-wide text-muted"
+          >
+            Viewing tournament
+          </label>
+          <select
+            id="admin-batch"
+            value={viewBatch}
+            onChange={(e) => setViewBatch(e.target.value)}
+            className="rounded-lg border border-card-border bg-background px-3 py-1.5 text-sm"
+          >
+            {batches.map((b) => (
+              <option key={b} value={b}>
+                {b}
+                {b === activeBatch ? " (active)" : ""}
+              </option>
+            ))}
+          </select>
+          <span className="text-xs text-muted">
+            New entries join <b className="text-foreground">{activeBatch}</b>.
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            type="text"
+            value={newBatch}
+            maxLength={60}
+            placeholder="New tournament name..."
+            onChange={(e) => setNewBatch(e.target.value)}
+            className="min-w-0 flex-1 rounded-lg border border-card-border bg-background px-3 py-1.5 text-sm"
+          />
+          <button
+            onClick={startNewBatch}
+            disabled={batchBusy || !newBatch.trim()}
+            className="shrink-0 rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-accent-foreground disabled:opacity-50"
+          >
+            {batchBusy ? "Starting..." : "Start new tournament"}
+          </button>
+        </div>
+        <p className="text-xs text-muted">
+          Starting a new tournament makes it the active batch — new submissions
+          go into it, and it gets its own leaderboard.
+        </p>
+      </div>
+
       {submissions === null ? (
         <p className="text-muted">Loading...</p>
       ) : submissions.length === 0 ? (
@@ -217,7 +322,9 @@ function Dashboard({
 
           {visible.length === 0 ? (
             <div className="card rounded-xl p-8 text-center text-muted">
-              No participants match &ldquo;{search.trim()}&rdquo;.
+              {search.trim()
+                ? `No participants match "${search.trim()}" in ${viewBatch}.`
+                : `No submissions in ${viewBatch} yet.`}
             </div>
           ) : (
             <div className="flex flex-col gap-8">

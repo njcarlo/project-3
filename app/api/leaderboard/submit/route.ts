@@ -10,6 +10,7 @@ import {
   type LeaderboardMediaType,
 } from "@/lib/leaderboard";
 import { uploadLeaderboardFile } from "@/lib/leaderboardStorage";
+import { getLeaderboardConfig } from "@/lib/leaderboardConfig";
 
 // Uploads can be large (short videos), so give the handler room to run.
 export const maxDuration = 60;
@@ -107,6 +108,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // New entries join the currently active tournament batch.
+  const { activeBatch } = await getLeaderboardConfig();
+
   // Reserve the document id first so uploads land under a stable path.
   const ref = adminDb.collection(LEADERBOARD_COLLECTION).doc();
 
@@ -122,6 +126,7 @@ export async function POST(req: NextRequest) {
 
   await ref.set({
     name,
+    batch: activeBatch,
     mediaUrl,
     mediaType,
     selfieUrl,

@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase/admin";
-import { LEADERBOARD_COLLECTION } from "@/lib/leaderboard";
+import { DEFAULT_BATCH, LEADERBOARD_COLLECTION } from "@/lib/leaderboard";
 import { serializeSubmission } from "@/lib/leaderboardServer";
+import { getLeaderboardConfig } from "@/lib/leaderboardConfig";
 
 // The public live leaderboard. Never cached, so it reflects the admin's
 // latest scores.
@@ -29,7 +30,11 @@ interface BoardEntry {
   history: HistoryItem[];
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  // Which tournament batch to show — defaults to the active one.
+  const requested = req.nextUrl.searchParams.get("batch");
+  const batch = requested ?? (await getLeaderboardConfig()).activeBatch;
+
   const snap = await adminDb
     .collection(LEADERBOARD_COLLECTION)
     .where("status", "==", "scored")
@@ -41,6 +46,8 @@ export async function GET() {
 
   for (const doc of snap.docs) {
     const s = serializeSubmission(doc);
+    // Filter to the selected batch (treating legacy entries as the default).
+    if ((s.batch || DEFAULT_BATCH) !== batch) continue;
     const score = s.score ?? 0;
     const item: HistoryItem = {
       id: s.id,
@@ -78,5 +85,5 @@ export async function GET() {
     }))
     .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
 
-  return NextResponse.json({ entries });
+  return NextResponse.json({ entries, batch });
 }
