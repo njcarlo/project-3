@@ -12,6 +12,10 @@ const TABS = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
+  // /admin itself is the (unrelated) tournament dashboard — only show these
+  // catalog-admin tabs on its own sub-routes.
+  if (pathname === "/admin") return <>{children}</>;
+
   return (
     <div>
       <div className="border-b border-card-border">

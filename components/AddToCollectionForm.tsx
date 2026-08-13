@@ -85,7 +85,7 @@ export function AddToCollectionForm({
             label: newSessionLabel || `Session ${new Date().toLocaleDateString()}`,
             date: new Date().toISOString().slice(0, 10),
             cost: costNum,
-            currency: "JPY",
+            currency: "PHP",
             notes: "",
             createdAt: serverTimestamp(),
           }
@@ -168,7 +168,7 @@ export function AddToCollectionForm({
             />
             {s.label}
             {s.cost != null && (
-              <span className="text-muted">(¥{s.cost.toLocaleString()})</span>
+              <span className="text-muted">(₱{s.cost.toLocaleString()})</span>
             )}
           </label>
         ))}
@@ -194,7 +194,7 @@ export function AddToCollectionForm({
             <input
               type="number"
               min={0}
-              placeholder="What did this session cost? (JPY)"
+              placeholder="What did this session cost? (PHP)"
               value={newSessionCost}
               onChange={(e) => setNewSessionCost(e.target.value)}
               className="rounded-lg border border-card-border bg-background px-2 py-1"

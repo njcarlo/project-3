@@ -9,7 +9,7 @@ import { requestHasAdminAccess } from "@/lib/leaderboardAuth";
 // "scored" so it appears on the public leaderboard; passing null moves it back
 // to "pending" (e.g. to pull an entry from the board).
 export async function POST(req: NextRequest) {
-  if (!requestHasAdminAccess(req)) {
+  if (!(await requestHasAdminAccess(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

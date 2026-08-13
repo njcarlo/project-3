@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // Full review feed for the admin dashboard: every submission, including
 // selfies, newest first.
 export async function GET(req: NextRequest) {
-  if (!requestHasAdminAccess(req)) {
+  if (!(await requestHasAdminAccess(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

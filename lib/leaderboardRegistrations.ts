@@ -24,6 +24,7 @@ export function serializeRegistration(snap: DocumentSnapshot): Registration {
     messenger: String(data.messenger ?? ""),
     qrUrl: String(data.qrUrl ?? ""),
     paid: data.paid === true,
+    uid: typeof data.uid === "string" && data.uid ? data.uid : null,
     createdAt: millis(data.createdAt),
   };
 }
@@ -42,4 +43,18 @@ export async function getRegisteredNames(batch: string): Promise<string[]> {
   const regs = await listRegistrations(batch);
   const names = new Set(regs.map((r) => r.name).filter(Boolean));
   return [...names].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+}
+
+/** This player's registration for a batch, found via their account uid. */
+export async function getRegistrationByUid(
+  batch: string,
+  uid: string
+): Promise<Registration | null> {
+  const snap = await adminDb
+    .collection(LEADERBOARD_REGISTRATIONS_COLLECTION)
+    .where("batch", "==", batch)
+    .where("uid", "==", uid)
+    .limit(1)
+    .get();
+  return snap.empty ? null : serializeRegistration(snap.docs[0]);
 }

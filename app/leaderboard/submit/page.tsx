@@ -1,95 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import {
-  MAX_MEDIA_BYTES,
-  MAX_SELFIE_BYTES,
-  MAX_QR_BYTES,
-  SUBMIT_PASSWORD_HEADER,
-} from "@/lib/leaderboard";
+import type { User } from "firebase/auth";
+import { useAuth } from "@/lib/auth/AuthProvider";
+import { MAX_MEDIA_BYTES, MAX_SELFIE_BYTES, MAX_QR_BYTES } from "@/lib/leaderboard";
 import { compressImage } from "@/lib/imageCompression";
 import { SubmissionGuide } from "@/components/SubmissionGuide";
 
-const STORAGE_KEY = "leaderboard-submit-password";
-
 export default function LeaderboardSubmitPage() {
-  const [password, setPassword] = useState<string | null>(null);
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    const saved = sessionStorage.getItem(STORAGE_KEY);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (saved) setPassword(saved);
-  }, []);
+  if (loading) return null;
 
-  if (!password) return <SubmitGate onUnlock={setPassword} />;
-  return <SubmitForm password={password} />;
-}
-
-function SubmitGate({ onUnlock }: { onUnlock: (pw: string) => void }) {
-  const [value, setValue] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/leaderboard/submit", {
-        headers: { [SUBMIT_PASSWORD_HEADER]: value },
-      });
-      if (res.status === 401) {
-        setError("Incorrect password.");
-        return;
-      }
-      if (!res.ok) throw new Error();
-      sessionStorage.setItem(STORAGE_KEY, value);
-      onUnlock(value);
-    } catch {
-      setError("Something went wrong. Try again.");
-    } finally {
-      setBusy(false);
-    }
+  if (!user) {
+    return (
+      <div className="mx-auto max-w-sm px-4 py-16 text-center sm:py-24">
+        <div className="card rounded-xl p-6">
+          <h1 className="mb-1 text-xl font-bold tracking-tight">
+            Submit an entry
+          </h1>
+          <p className="mb-5 text-sm text-muted">
+            Log in with your player account to submit.
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Link
+              href="/leaderboard/login"
+              className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-accent-foreground"
+            >
+              Log in
+            </Link>
+            <Link
+              href="/tournament/register"
+              className="rounded-full border border-card-border px-5 py-2 text-sm font-medium hover:bg-card-border/30"
+            >
+              Register
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <div className="mx-auto max-w-sm px-4 py-16 sm:py-24">
-      <div className="card rounded-xl p-6">
-        <h1 className="mb-1 text-xl font-bold tracking-tight">
-          Submit an entry
-        </h1>
-        <p className="mb-5 text-sm text-muted">
-          Enter the submission password from the organizer.
-        </p>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <input
-            type="password"
-            autoFocus
-            placeholder="Password"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            className="rounded-lg border border-card-border bg-background px-3 py-2"
-          />
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          <button
-            type="submit"
-            disabled={busy || !value}
-            className="rounded-full bg-accent px-5 py-2 font-medium text-accent-foreground disabled:opacity-50"
-          >
-            {busy ? "Checking..." : "Continue"}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+  return <SubmitForm user={user} />;
 }
 
-function SubmitForm({ password }: { password: string }) {
-  const [name, setName] = useState("");
-  const [nameQuery, setNameQuery] = useState("");
-  const [nameOpen, setNameOpen] = useState(false);
-  const [names, setNames] = useState<string[]>([]);
+function SubmitForm({ user }: { user: User }) {
   const [media, setMedia] = useState<File | null>(null);
   const [selfie, setSelfie] = useState<File | null>(null);
   const [qr, setQr] = useState<File | null>(null);
@@ -97,33 +53,10 @@ function SubmitForm({ password }: { password: string }) {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
-  // Roster = players registered for the active tournament.
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const res = await fetch("/api/leaderboard/participants", {
-          cache: "no-store",
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (active) setNames(data.names ?? []);
-      } catch {
-        /* leave roster empty */
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, []);
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
-    if (!name.trim()) return setError("Please select your name.");
-    if (!names.includes(name.trim()))
-      return setError("Please pick your registered name from the list.");
     if (!media && !selfie)
       return setError("Please add at least a photo/video entry or a selfie.");
 
@@ -147,14 +80,14 @@ function SubmitForm({ password }: { password: string }) {
         throw new Error("Your Trainer ID QR is too large (max 6 MB).");
 
       const form = new FormData();
-      form.append("name", name.trim());
       if (mediaOut) form.append("media", mediaOut);
       if (selfieOut) form.append("selfie", selfieOut);
       if (qrOut) form.append("qr", qrOut);
 
+      const token = await user.getIdToken();
       const res = await fetch("/api/leaderboard/submit", {
         method: "POST",
-        headers: { [SUBMIT_PASSWORD_HEADER]: password },
+        headers: { authorization: `Bearer ${token}` },
         body: form,
       });
       const data = await res.json().catch(() => ({}));
@@ -175,8 +108,8 @@ function SubmitForm({ password }: { password: string }) {
             Entry submitted! 🎉
           </h1>
           <p className="mb-6 text-muted">
-            Thanks, {name.trim()}. An admin will review your entry and set your
-            score.
+            Thanks, {user.displayName}. An admin will review your entry and
+            set your score.
           </p>
           <Link
             href="/leaderboard"
@@ -189,24 +122,13 @@ function SubmitForm({ password }: { password: string }) {
     );
   }
 
-  const query = nameQuery.trim().toLowerCase();
-  const filteredNames =
-    query === ""
-      ? names
-      : names.filter((p) => p.toLowerCase().includes(query));
-
-  function selectName(p: string) {
-    setName(p);
-    setNameQuery(p);
-    setNameOpen(false);
-  }
-
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <h1 className="mb-2 text-3xl font-bold tracking-tight">Submit your entry</h1>
       <p className="mb-8 text-sm text-muted">
-        Pick your registered name and add a photo/video entry and/or a selfie
-        (at least one) so we can verify it&apos;s really you.
+        Signed in as <b className="text-foreground">{user.displayName}</b>. Add
+        a photo/video entry and/or a selfie (at least one) so we can verify
+        it&apos;s really you.
       </p>
 
       <div className="flex flex-col gap-6 md:flex-row md:items-start">
@@ -219,69 +141,6 @@ function SubmitForm({ password }: { password: string }) {
           onSubmit={handleSubmit}
           className="card order-1 flex flex-1 flex-col gap-5 rounded-xl p-5 md:order-2"
         >
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">Name</span>
-          <div className="relative">
-            <input
-              type="text"
-              inputMode="search"
-              autoComplete="off"
-              placeholder="Search your name..."
-              value={nameQuery}
-              onFocus={() => setNameOpen(true)}
-              onChange={(e) => {
-                setNameQuery(e.target.value);
-                setName("");
-                setNameOpen(true);
-              }}
-              onBlur={() => setTimeout(() => setNameOpen(false), 150)}
-              className="w-full rounded-lg border border-card-border bg-background px-3 py-2"
-            />
-            {nameOpen && (
-              <ul className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-lg border border-card-border bg-background shadow-lg">
-                {filteredNames.length === 0 ? (
-                  <li className="px-3 py-2 text-sm text-muted">
-                    {names.length === 0
-                      ? "No registered players yet."
-                      : "No match."}
-                  </li>
-                ) : (
-                  filteredNames.map((p) => (
-                    <li key={p}>
-                      <button
-                        type="button"
-                        // Prevent the input's blur from firing before the click.
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => selectName(p)}
-                        className={`block w-full px-3 py-2.5 text-left text-sm hover:bg-card-border/40 ${
-                          name === p ? "bg-accent/20 font-medium" : ""
-                        }`}
-                      >
-                        {p}
-                      </button>
-                    </li>
-                  ))
-                )}
-              </ul>
-            )}
-          </div>
-          {name ? (
-            <span className="text-xs text-emerald-500">✓ Selected: {name}</span>
-          ) : names.length === 0 ? (
-            <span className="text-xs text-muted">
-              No registered players yet.{" "}
-              <Link href="/tournament/register" className="text-accent underline">
-                Register first
-              </Link>
-              .
-            </span>
-          ) : (
-            <span className="text-xs text-muted">
-              Tap the field and type to find your registered name.
-            </span>
-          )}
-        </div>
-
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">
             Photo or video entry <span className="text-muted">(optional)</span>

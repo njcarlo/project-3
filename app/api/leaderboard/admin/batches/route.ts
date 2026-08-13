@@ -6,7 +6,7 @@ import { requestHasAdminAccess } from "@/lib/leaderboardAuth";
 // - { name } -> create (if new) and activate.
 // - { name, open: boolean } -> set the batch's open/closed status.
 export async function POST(req: NextRequest) {
-  if (!requestHasAdminAccess(req)) {
+  if (!(await requestHasAdminAccess(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

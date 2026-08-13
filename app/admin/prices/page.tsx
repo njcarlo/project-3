@@ -159,7 +159,7 @@ export default function AdminPricesPage() {
 
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
-                    {item?.name ?? "Unknown item"} — ¥
+                    {item?.name ?? "Unknown item"} — ₱
                     {s.price.toLocaleString()}
                     <span className="ml-1 text-xs text-muted">
                       ({s.type === "paid" ? "paid" : "estimate"})

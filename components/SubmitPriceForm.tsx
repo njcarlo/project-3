@@ -28,7 +28,7 @@ export function SubmitPriceForm({ catalogItemId }: { catalogItemId: string }) {
         catalogItemId,
         submittedBy: user!.uid,
         price: priceNum,
-        currency: "JPY",
+        currency: "PHP",
         type,
         sourceNote,
         submittedAt: serverTimestamp(),
@@ -64,7 +64,7 @@ export function SubmitPriceForm({ catalogItemId }: { catalogItemId: string }) {
         type="number"
         required
         min={1}
-        placeholder="Price (JPY)"
+        placeholder="Price (PHP)"
         value={price}
         onChange={(e) => setPrice(e.target.value)}
         className="rounded-lg border border-card-border bg-background px-2 py-1"

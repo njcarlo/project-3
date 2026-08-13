@@ -130,12 +130,12 @@ export default async function PublicPortfolioPage({
             <div className="flex flex-col gap-4 sm:flex-row">
               <StatCard
                 label="Total value"
-                value={`¥${Math.round(data.totalValue).toLocaleString()}`}
+                value={`₱${Math.round(data.totalValue).toLocaleString()}`}
               />
               <StatCard label="Items" value={String(data.totalItems)} />
               <StatCard
                 label="Avg per item"
-                value={`¥${Math.round(
+                value={`₱${Math.round(
                   data.totalValue / data.totalItems
                 ).toLocaleString()}`}
               />

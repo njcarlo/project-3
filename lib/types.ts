@@ -60,7 +60,7 @@ export interface CollectionSession {
   label: string;
   date: string | null;
   cost: number | null;
-  currency: "JPY" | "USD";
+  currency: "PHP" | "USD";
   notes: string;
   createdAt: number;
 }
@@ -86,7 +86,7 @@ export interface PriceSubmission {
   catalogItemId: string;
   submittedBy: string;
   price: number;
-  currency: "JPY" | "USD";
+  currency: "PHP" | "USD";
   type: PriceSubmissionType;
   sourceNote: string;
   submittedAt: number;

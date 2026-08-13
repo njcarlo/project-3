@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
-import { adminDb } from "@/lib/firebase/admin";
+import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import {
   LEADERBOARD_REGISTRATIONS_COLLECTION,
   MAX_QR_BYTES,
 } from "@/lib/leaderboard";
 import { uploadLeaderboardFile } from "@/lib/leaderboardStorage";
 import { getLeaderboardConfig } from "@/lib/leaderboardConfig";
+import { isValidUsername, usernameToEmail } from "@/lib/leaderboardUsername";
 
 export const maxDuration = 60;
 
@@ -25,6 +26,8 @@ export async function POST(req: NextRequest) {
   const name = String(form.get("name") ?? "").trim();
   const contact = String(form.get("contact") ?? "").trim();
   const messenger = String(form.get("messenger") ?? "").trim();
+  const username = String(form.get("username") ?? "").trim();
+  const password = String(form.get("password") ?? "");
   const qr = form.get("qr");
   const qrFile = qr instanceof File && qr.size > 0 ? qr : null;
 
@@ -46,6 +49,21 @@ export async function POST(req: NextRequest) {
   if (messenger.length > 200) {
     return NextResponse.json(
       { error: "Messenger is too long." },
+      { status: 400 }
+    );
+  }
+  if (!isValidUsername(username)) {
+    return NextResponse.json(
+      {
+        error:
+          "Username must be 3-24 characters: letters, numbers, and underscores only.",
+      },
+      { status: 400 }
+    );
+  }
+  if (password.length < 6) {
+    return NextResponse.json(
+      { error: "Password must be at least 6 characters." },
       { status: 400 }
     );
   }
@@ -90,6 +108,34 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Create the player's own account. The synthetic email lets them sign in
+  // with just a username + password; Firebase Auth's uniqueness check on
+  // email doubles as the username-uniqueness check.
+  let uid: string;
+  try {
+    const userRecord = await adminAuth.createUser({
+      email: usernameToEmail(username),
+      password,
+      displayName: name,
+    });
+    uid = userRecord.uid;
+  } catch (err) {
+    const code =
+      typeof err === "object" && err !== null && "code" in err
+        ? String((err as { code: unknown }).code)
+        : "";
+    if (code === "auth/email-already-exists") {
+      return NextResponse.json(
+        { error: "That username is taken." },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json(
+      { error: "Couldn't create your account. Try a different username." },
+      { status: 400 }
+    );
+  }
+
   const ref = adminDb.collection(LEADERBOARD_REGISTRATIONS_COLLECTION).doc();
   const qrUrl = await uploadLeaderboardFile(qrFile, `reg-${ref.id}`, "qr");
 
@@ -100,8 +146,16 @@ export async function POST(req: NextRequest) {
     messenger,
     qrUrl,
     paid: false,
+    uid,
     createdAt: FieldValue.serverTimestamp(),
   });
 
-  return NextResponse.json({ id: ref.id, batch: activeBatch }, { status: 201 });
+  // A custom token lets the client sign straight into this new account
+  // without re-entering the password.
+  const customToken = await adminAuth.createCustomToken(uid);
+
+  return NextResponse.json(
+    { id: ref.id, batch: activeBatch, customToken },
+    { status: 201 }
+  );
 }

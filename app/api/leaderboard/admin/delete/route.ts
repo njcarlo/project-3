@@ -6,7 +6,7 @@ import { requestHasAdminAccess } from "@/lib/leaderboardAuth";
 // Permanently remove a submission: deletes the Firestore doc and its uploaded
 // media/selfie files from Storage.
 export async function POST(req: NextRequest) {
-  if (!requestHasAdminAccess(req)) {
+  if (!(await requestHasAdminAccess(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

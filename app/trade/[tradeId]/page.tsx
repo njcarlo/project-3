@@ -45,7 +45,7 @@ function SideList({
       <div className="mb-3 flex items-baseline justify-between">
         <h3 className="text-sm font-semibold">{title}</h3>
         <span className="text-sm text-muted">
-          ¥{Math.round(total).toLocaleString()}
+          ₱{Math.round(total).toLocaleString()}
         </span>
       </div>
       <div className="flex flex-col gap-2">
@@ -70,7 +70,7 @@ function SideList({
               )}
             </div>
             <span className="text-sm text-muted">
-              ¥{Math.round(item.valueAtProposal * item.quantity).toLocaleString()}
+              ₱{Math.round(item.valueAtProposal * item.quantity).toLocaleString()}
             </span>
           </div>
         ))}

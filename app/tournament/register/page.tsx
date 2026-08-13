@@ -2,13 +2,18 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { signInWithCustomToken } from "firebase/auth";
+import { auth } from "@/lib/firebase/client";
 import { MAX_QR_BYTES } from "@/lib/leaderboard";
+import { isValidUsername } from "@/lib/leaderboardUsername";
 import { compressImage } from "@/lib/imageCompression";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [messenger, setMessenger] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [qr, setQr] = useState<File | null>(null);
   const [activeBatch, setActiveBatch] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -40,6 +45,12 @@ export default function RegisterPage() {
     if (!name.trim()) return setError("Please enter your name.");
     if (!contact.trim())
       return setError("Please enter an email or phone number.");
+    if (!isValidUsername(username))
+      return setError(
+        "Username must be 3-24 characters: letters, numbers, and underscores only."
+      );
+    if (password.length < 6)
+      return setError("Password must be at least 6 characters.");
     if (!qr) return setError("Please add a photo of your Trainer ID QR.");
 
     setBusy(true);
@@ -52,6 +63,8 @@ export default function RegisterPage() {
       form.append("name", name.trim());
       form.append("contact", contact.trim());
       form.append("messenger", messenger.trim());
+      form.append("username", username.trim());
+      form.append("password", password);
       form.append("qr", qrOut);
 
       const res = await fetch("/api/leaderboard/register", {
@@ -60,6 +73,12 @@ export default function RegisterPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "Registration failed.");
+
+      // Sign straight into the new account so they can head to /leaderboard
+      // /submit without re-entering their password.
+      if (data.customToken) {
+        await signInWithCustomToken(auth, data.customToken);
+      }
       setDone(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed.");
@@ -75,14 +94,31 @@ export default function RegisterPage() {
           <h1 className="mb-2 text-2xl font-bold tracking-tight">
             You&apos;re registered! 🎉
           </h1>
-          <p className="mb-6 text-muted">
-            Thanks, {name.trim()}. Once the organizer confirms your tournament
-            fee, they&apos;ll share the link for submitting your entry.
+          <p className="mb-4 text-muted">
+            Thanks, {name.trim()}. You&apos;re signed in as{" "}
+            <b className="text-foreground">{username.trim()}</b> — use that
+            username and password to log back in any time. Message the
+            organizer on Facebook so they can send you where to pay the
+            tournament fee.
           </p>
-          <div className="flex flex-col gap-2">
+          <a
+            href="https://www.facebook.com/JohnNavarro012121/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-6 inline-block rounded-full bg-[#1877F2] px-5 py-2 text-sm font-medium text-white"
+          >
+            Message John on Facebook
+          </a>
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Link
+              href="/leaderboard/submit"
+              className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-accent-foreground"
+            >
+              Submit your entry
+            </Link>
             <Link
               href="/tournament"
-              className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-accent-foreground"
+              className="rounded-full border border-card-border px-5 py-2 text-sm font-medium hover:bg-card-border/30"
             >
               Back to tournament
             </Link>
@@ -95,9 +131,22 @@ export default function RegisterPage() {
   return (
     <div className="mx-auto max-w-lg px-4 py-6 sm:py-10">
       <h1 className="mb-2 text-3xl font-bold tracking-tight">Register</h1>
-      <p className="mb-8 text-sm text-muted">
+      <p className="mb-2 text-sm text-muted">
         Sign up for {activeBatch ? <b>{activeBatch}</b> : "the tournament"}.
-        Enter your name, a contact, and a photo of your Trainer ID QR.
+        Enter your name, a contact, a username + password for your own login,
+        and a photo of your Trainer ID QR.
+      </p>
+      <p className="mb-8 text-sm text-muted">
+        After registering, message{" "}
+        <a
+          href="https://www.facebook.com/JohnNavarro012121/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-accent underline"
+        >
+          John on Facebook
+        </a>{" "}
+        so he can send you where to pay the tournament fee.
       </p>
 
       <form onSubmit={handleSubmit} className="card flex flex-col gap-5 rounded-xl p-5">
@@ -146,6 +195,48 @@ export default function RegisterPage() {
             Optional — helps the organizer reach you on Messenger.
           </span>
         </label>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">Username</span>
+            <input
+              type="text"
+              required
+              autoComplete="username"
+              maxLength={24}
+              placeholder="Pick a username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="rounded-lg border border-card-border bg-background px-3 py-2"
+            />
+            <span className="text-xs text-muted">
+              3-24 characters: letters, numbers, underscores.
+            </span>
+          </label>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">Password</span>
+            <input
+              type="password"
+              required
+              autoComplete="new-password"
+              minLength={6}
+              placeholder="Pick a password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="rounded-lg border border-card-border bg-background px-3 py-2"
+            />
+            <span className="text-xs text-muted">At least 6 characters.</span>
+          </label>
+        </div>
+        <p className="-mt-3 text-xs text-muted">
+          This logs you into the app itself — use it to submit your entry
+          later at{" "}
+          <Link href="/leaderboard/login" className="text-accent underline">
+            /leaderboard/login
+          </Link>
+          .
+        </p>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">Trainer ID QR</span>

@@ -54,6 +54,9 @@ export interface Registration {
   qrUrl: string;
   // Admin-confirmed payment of the tournament fee.
   paid: boolean;
+  // Firebase Auth uid for this player's own username/password account.
+  // Absent on registrations created before player accounts existed.
+  uid: string | null;
   createdAt: number;
 }
 
@@ -95,13 +98,6 @@ export const PARTICIPANTS = [
 export function isValidParticipant(name: string): boolean {
   return (PARTICIPANTS as readonly string[]).includes(name);
 }
-
-// Header the client sends the admin password in.
-export const ADMIN_PASSWORD_HEADER = "x-leaderboard-password";
-
-// Header the client sends the submission password in (gates who can submit
-// entries — separate from the admin password).
-export const SUBMIT_PASSWORD_HEADER = "x-leaderboard-submit-password";
 
 // Upload limits. Videos are naturally larger than photos.
 //

@@ -35,7 +35,7 @@ export function BreakdownBars<T extends Breakdown>({
               />
             </div>
             <span className="w-20 shrink-0 text-right text-muted">
-              ¥{Math.round(row.value).toLocaleString()}
+              ₱{Math.round(row.value).toLocaleString()}
             </span>
           </div>
         );

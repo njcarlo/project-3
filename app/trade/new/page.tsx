@@ -215,7 +215,7 @@ export default function NewTradePage() {
                 <div>
                   <p className="text-muted">You give</p>
                   <p className="text-lg font-bold">
-                    ¥{Math.round(analysis.initiator.total).toLocaleString()}
+                    ₱{Math.round(analysis.initiator.total).toLocaleString()}
                   </p>
                 </div>
                 <div className="text-center">
@@ -236,7 +236,7 @@ export default function NewTradePage() {
                 <div className="text-right">
                   <p className="text-muted">You get</p>
                   <p className="text-lg font-bold">
-                    ¥{Math.round(analysis.counterparty.total).toLocaleString()}
+                    ₱{Math.round(analysis.counterparty.total).toLocaleString()}
                   </p>
                 </div>
               </div>

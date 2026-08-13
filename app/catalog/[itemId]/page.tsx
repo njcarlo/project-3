@@ -65,13 +65,13 @@ export default async function CatalogItemPage({
               <div className="mt-2 flex items-baseline gap-4">
                 <div>
                   <p className="text-2xl font-bold">
-                    ¥{aggregate.avg.toLocaleString()}
+                    ₱{aggregate.avg.toLocaleString()}
                   </p>
                   <p className="text-xs text-muted">average</p>
                 </div>
                 <div>
                   <p className="text-lg font-semibold">
-                    ¥{aggregate.median.toLocaleString()}
+                    ₱{aggregate.median.toLocaleString()}
                   </p>
                   <p className="text-xs text-muted">median</p>
                 </div>

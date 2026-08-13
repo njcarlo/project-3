@@ -152,9 +152,9 @@ export default function CollectionPage() {
                     {session?.date && <span>{session.date} · </span>}
                     {session?.cost != null && (
                       <span>
-                        ¥{session.cost.toLocaleString()} total
+                        ₱{session.cost.toLocaleString()} total
                         {costPerTag != null &&
-                          ` · ¥${costPerTag.toFixed(0)}/tag`}
+                          ` · ₱${costPerTag.toFixed(0)}/tag`}
                       </span>
                     )}
                   </div>

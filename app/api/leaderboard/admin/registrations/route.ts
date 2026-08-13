@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 // Admin: full registration list (name, contact, QR, paid status).
 export async function GET(req: NextRequest) {
-  if (!requestHasAdminAccess(req)) {
+  if (!(await requestHasAdminAccess(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const registrations = await listRegistrations();
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
 // Admin: confirm/unconfirm a registrant's tournament-fee payment.
 export async function POST(req: NextRequest) {
-  if (!requestHasAdminAccess(req)) {
+  if (!(await requestHasAdminAccess(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

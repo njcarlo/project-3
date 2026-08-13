@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
-import { adminDb } from "@/lib/firebase/admin";
+import { adminDb, verifyIdToken } from "@/lib/firebase/admin";
 import {
   LEADERBOARD_COLLECTION,
   MAX_MEDIA_BYTES,
@@ -10,19 +10,10 @@ import {
 } from "@/lib/leaderboard";
 import { uploadLeaderboardFile } from "@/lib/leaderboardStorage";
 import { getLeaderboardConfig } from "@/lib/leaderboardConfig";
-import { getRegisteredNames } from "@/lib/leaderboardRegistrations";
-import { requestHasSubmitAccess } from "@/lib/leaderboardAuth";
+import { getRegistrationByUid } from "@/lib/leaderboardRegistrations";
 
 // Uploads can be large (short videos), so give the handler room to run.
 export const maxDuration = 60;
-
-// Used by the submit page's password gate to validate access.
-export async function GET(req: NextRequest) {
-  if (!requestHasSubmitAccess(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  return NextResponse.json({ ok: true });
-}
 
 function mediaTypeFor(file: File): LeaderboardMediaType | null {
   if (file.type.startsWith("image/")) return "image";
@@ -31,7 +22,8 @@ function mediaTypeFor(file: File): LeaderboardMediaType | null {
 }
 
 export async function POST(req: NextRequest) {
-  if (!requestHasSubmitAccess(req)) {
+  const decoded = await verifyIdToken(req.headers.get("authorization"));
+  if (!decoded) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -45,17 +37,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const name = String(form.get("name") ?? "").trim();
   const media = form.get("media");
   const selfie = form.get("selfie");
   const qr = form.get("qr");
 
-  if (!name) {
-    return NextResponse.json({ error: "Name is required." }, { status: 400 });
-  }
-
-  // The entry joins the active tournament, and the name must be a registered
-  // player in that tournament.
+  // The entry joins the active tournament. The submitter's name comes from
+  // their own registration (looked up by account uid) rather than the
+  // client, so an entry can't be filed under someone else's name.
   const { activeBatch, closedBatches } = await getLeaderboardConfig();
   if (closedBatches.includes(activeBatch)) {
     return NextResponse.json(
@@ -63,13 +51,14 @@ export async function POST(req: NextRequest) {
       { status: 403 }
     );
   }
-  const roster = await getRegisteredNames(activeBatch);
-  if (!roster.includes(name)) {
+  const registration = await getRegistrationByUid(activeBatch, decoded.uid);
+  if (!registration) {
     return NextResponse.json(
       { error: "Please register for the tournament before submitting." },
       { status: 400 }
     );
   }
+  const name = registration.name;
 
   const mediaFile = media instanceof File && media.size > 0 ? media : null;
   const selfieFile = selfie instanceof File && selfie.size > 0 ? selfie : null;
