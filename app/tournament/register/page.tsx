@@ -54,7 +54,7 @@ function PaymentSection({ paymentQrUrl }: { paymentQrUrl: string | null }) {
           <img
             src={paymentQrUrl}
             alt="Payment QR"
-            className="h-48 w-48 rounded-lg border border-card-border object-contain"
+            className="h-48 w-48 rounded-lg border border-card-border bg-white object-contain p-2"
           />
           <p className="text-xs text-muted">Scan to pay, then upload proof below.</p>
         </div>

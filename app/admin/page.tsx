@@ -748,7 +748,7 @@ function PaymentQrTool({
           <img
             src={paymentQrUrl}
             alt="Payment QR"
-            className="h-full w-full object-contain"
+            className="h-full w-full bg-white object-contain p-1"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-xs text-muted">
@@ -800,7 +800,7 @@ function RegistrationNote({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="text-xs text-muted underline hover:text-foreground"
+        className="shrink-0 whitespace-nowrap rounded-full border border-card-border px-3 py-1.5 text-xs text-muted hover:text-foreground"
       >
         Add note
       </button>
@@ -808,17 +808,17 @@ function RegistrationNote({
   }
 
   return (
-    <div className="mt-1 flex items-center gap-1">
+    <div className="flex w-48 shrink-0 items-center gap-1">
       <input
         type="text"
         value={value}
         maxLength={500}
-        placeholder="Admin note (e.g. Contacted, pending payment)"
+        placeholder="Admin note..."
         onChange={(e) => setValue(e.target.value)}
         onBlur={() => {
           if (value !== registration.adminNote) onSave(registration.id, value);
         }}
-        className="w-full min-w-0 rounded-lg border border-card-border bg-background px-2 py-1 text-xs"
+        className="w-full min-w-0 rounded-lg border border-card-border bg-background px-2 py-1.5 text-xs"
       />
       <button
         type="button"
@@ -908,7 +908,6 @@ function RegistrationsPanel({
                 <p className="font-medium">{r.name}</p>
                 <ContactLink contact={r.contact} />
                 {r.messenger && <MessengerLink messenger={r.messenger} />}
-                <RegistrationNote registration={r} onSave={onSaveNote} />
               </div>
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
@@ -929,6 +928,7 @@ function RegistrationsPanel({
                   Message to pay
                 </a>
               )}
+              <RegistrationNote registration={r} onSave={onSaveNote} />
               <button
                 onClick={() => onTogglePaid(r.id, !r.paid)}
                 className={`rounded-full px-4 py-1.5 text-sm font-medium ${
