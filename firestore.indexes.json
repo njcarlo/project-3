@@ -17,6 +17,14 @@
         { "fieldPath": "seriesId", "order": "ASCENDING" },
         { "fieldPath": "number", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "catalogItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "rarity", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

@@ -79,7 +79,9 @@ export interface UserCollectionItem {
 }
 
 export type PriceSubmissionType = "paid" | "estimated_value";
-export type PriceSubmissionStatus = "active" | "excluded";
+// "pending" = awaiting admin review, not yet counted in the aggregate.
+// "active" = counted. "excluded" = rejected/flagged, never counted.
+export type PriceSubmissionStatus = "pending" | "active" | "excluded";
 
 export interface PriceSubmission {
   id: string;
@@ -116,6 +118,9 @@ export interface UserProfile {
   role: UserRole;
   showcaseItemIds: string[];
   stats: { totalItems: number; totalValue: number };
+  // Trusted contributors' price submissions auto-approve instead of sitting
+  // in the admin review queue. Admin-controlled only.
+  contributor?: boolean;
   // Whether /u/{uid} is viewable by anyone with the link. Defaults to true
   // for profiles provisioned without this field.
   portfolioPublic?: boolean;

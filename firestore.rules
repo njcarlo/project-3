@@ -15,15 +15,26 @@ service cloud.firestore {
       return isSignedIn() && request.auth.token.admin == true;
     }
 
+    // Trusted contributors' price submissions skip the review queue.
+    function isContributor() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("contributor", false) == true;
+    }
+
     // ---- users ----
     match /users/{uid} {
       allow read: if true;
       // Profile doc is provisioned server-side (Cloud Function) on signup.
-      // Users may only update their own editable fields, never role/stats.
       allow create: if false;
-      allow update: if isOwner(uid)
-        && request.resource.data.role == resource.data.role
-        && request.resource.data.stats == resource.data.stats;
+      // Users may update their own editable fields, never role/stats/contributor.
+      // .get(field, default) guards profiles that predate the `contributor` field.
+      allow update: if (isOwner(uid)
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.stats == resource.data.stats
+          && request.resource.data.get("contributor", false) == resource.data.get("contributor", false))
+        // Admins may flip only the `contributor` flag on any profile.
+        || (isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["contributor"]));
       allow delete: if false;
     }
 
@@ -71,10 +82,13 @@ service cloud.firestore {
         && request.resource.data.submittedBy == request.auth.uid
         && request.resource.data.price is number
         && request.resource.data.price > 0
-        && request.resource.data.status == "active"
-        && request.resource.data.flagged == false;
+        && request.resource.data.flagged == false
+        // Contributors/admins auto-approve straight to "active"; everyone
+        // else lands in "pending" until an admin reviews it.
+        && (request.resource.data.status ==
+              ((isAdmin() || isContributor()) ? "active" : "pending"));
       // Submissions are immutable once created except by an admin
-      // (moderation: flagging/excluding abusive entries).
+      // (moderation: approving/rejecting/flagging).
       allow update: if isAdmin();
       allow delete: if false;
     }

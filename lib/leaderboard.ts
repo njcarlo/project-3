@@ -9,6 +9,11 @@
 
 export type LeaderboardStatus = "pending" | "scored";
 
+// Kill switch for entry submissions (both the /leaderboard/submit page and
+// the API route it posts to), independent of any batch's open/closed state.
+// Flip to true when the tournament is ready to accept entries.
+export const SUBMISSIONS_OPEN = false;
+
 // Each tournament run is a "batch". New submissions are tagged with the
 // currently active batch; the leaderboard can be viewed per batch.
 export const DEFAULT_BATCH = "Batch 1";
@@ -52,11 +57,18 @@ export interface Registration {
   // Messenger name or link (optional).
   messenger: string;
   qrUrl: string;
+  // Screenshot the registrant uploaded showing they paid via the admin's
+  // payment QR. Empty until they upload one (or they may skip it and just
+  // contact the admin instead).
+  paymentProofUrl: string;
   // Admin-confirmed payment of the tournament fee.
   paid: boolean;
   // Firebase Auth uid for this player's own username/password account.
   // Absent on registrations created before player accounts existed.
   uid: string | null;
+  // Admin-only note (e.g. "Contacted, pending payment") — never shown to
+  // the registrant.
+  adminNote: string;
   createdAt: number;
 }
 

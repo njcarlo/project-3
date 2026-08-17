@@ -68,6 +68,7 @@ function Dashboard({ user, onLock }: { user: User; onLock: () => void }) {
   const [registrations, setRegistrations] = useState<Registration[] | null>(
     null
   );
+  const [paymentQrUrl, setPaymentQrUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -105,6 +106,32 @@ function Dashboard({ user, onLock }: { user: User; onLock: () => void }) {
     }
   }
 
+  async function saveNote(id: string, adminNote: string) {
+    const res = await authedFetch(user, "/api/leaderboard/admin/registrations", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id, adminNote }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const updated = data.registration as Registration;
+      setRegistrations((prev) =>
+        prev ? prev.map((r) => (r.id === id ? updated : r)) : prev
+      );
+    }
+  }
+
+  async function deleteRegistration(id: string) {
+    const res = await authedFetch(user, "/api/leaderboard/admin/registrations", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (res.ok) {
+      setRegistrations((prev) => (prev ? prev.filter((r) => r.id !== id) : prev));
+    }
+  }
+
   useEffect(() => {
     let active = true;
     (async () => {
@@ -119,6 +146,7 @@ function Dashboard({ user, onLock }: { user: User; onLock: () => void }) {
         setActiveBatch(data.activeBatch ?? "");
         setClosedBatches(data.closedBatches ?? []);
         setViewBatch((prev) => prev || data.activeBatch || "");
+        setPaymentQrUrl(data.paymentQrUrl ?? null);
       } catch {
         /* ignore */
       }
@@ -127,6 +155,29 @@ function Dashboard({ user, onLock }: { user: User; onLock: () => void }) {
       active = false;
     };
   }, []);
+
+  async function uploadPaymentQr(file: File) {
+    const form = new FormData();
+    form.append("qr", file);
+    const res = await authedFetch(user, "/api/leaderboard/admin/payment-qr", {
+      method: "POST",
+      body: form,
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setPaymentQrUrl(data.paymentQrUrl ?? null);
+    }
+  }
+
+  async function clearPaymentQr() {
+    const form = new FormData();
+    form.append("clear", "true");
+    const res = await authedFetch(user, "/api/leaderboard/admin/payment-qr", {
+      method: "POST",
+      body: form,
+    });
+    if (res.ok) setPaymentQrUrl(null);
+  }
 
   async function toggleBatchOpen(name: string, open: boolean) {
     const res = await authedFetch(user, "/api/leaderboard/admin/batches", {
@@ -352,6 +403,14 @@ function Dashboard({ user, onLock }: { user: User; onLock: () => void }) {
         </p>
       </div>
 
+      {/* Payment QR shown to registrants on the registration confirmation
+          screen, so they can pay directly instead of messaging you. */}
+      <PaymentQrTool
+        paymentQrUrl={paymentQrUrl}
+        onUpload={uploadPaymentQr}
+        onClear={clearPaymentQr}
+      />
+
       {/* Registrations for the selected batch, with fee confirmation. */}
       <RegistrationsPanel
         registrations={(registrations ?? []).filter(
@@ -360,6 +419,8 @@ function Dashboard({ user, onLock }: { user: User; onLock: () => void }) {
         loading={registrations === null}
         batch={viewBatch}
         onTogglePaid={togglePaid}
+        onSaveNote={saveNote}
+        onDelete={deleteRegistration}
       />
 
       {submissions === null ? (
@@ -658,18 +719,145 @@ function MessengerLink({ messenger }: { messenger: string }) {
   );
 }
 
+function PaymentQrTool({
+  paymentQrUrl,
+  onUpload,
+  onClear,
+}: {
+  paymentQrUrl: string | null;
+  onUpload: (file: File) => Promise<void>;
+  onClear: () => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  async function handleFile(file: File | null) {
+    if (!file) return;
+    setBusy(true);
+    try {
+      await onUpload(file);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="card mb-8 flex flex-wrap items-center gap-4 rounded-xl p-4">
+      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-background">
+        {paymentQrUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={paymentQrUrl}
+            alt="Payment QR"
+            className="h-full w-full object-contain"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-xs text-muted">
+            No QR
+          </div>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold">Payment QR</p>
+        <p className="text-xs text-muted">
+          Shown to registrants on the registration confirmation screen so
+          they can pay directly (they can still choose to message you
+          instead).
+        </p>
+      </div>
+      <label className="shrink-0 rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-accent-foreground">
+        {busy ? "Uploading..." : paymentQrUrl ? "Replace" : "Upload QR"}
+        <input
+          type="file"
+          accept="image/*"
+          disabled={busy}
+          onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+          className="hidden"
+        />
+      </label>
+      {paymentQrUrl && (
+        <button
+          onClick={() => onClear()}
+          className="shrink-0 rounded-full border border-card-border px-4 py-1.5 text-sm text-muted hover:text-foreground"
+        >
+          Remove
+        </button>
+      )}
+    </div>
+  );
+}
+
+function RegistrationNote({
+  registration,
+  onSave,
+}: {
+  registration: Registration;
+  onSave: (id: string, note: string) => void;
+}) {
+  const [value, setValue] = useState(registration.adminNote);
+  const [open, setOpen] = useState(Boolean(registration.adminNote));
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="text-xs text-muted underline hover:text-foreground"
+      >
+        Add note
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-1 flex items-center gap-1">
+      <input
+        type="text"
+        value={value}
+        maxLength={500}
+        placeholder="Admin note (e.g. Contacted, pending payment)"
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={() => {
+          if (value !== registration.adminNote) onSave(registration.id, value);
+        }}
+        className="w-full min-w-0 rounded-lg border border-card-border bg-background px-2 py-1 text-xs"
+      />
+      <button
+        type="button"
+        onClick={() => {
+          const note = "Contacted, pending payment";
+          setValue(note);
+          onSave(registration.id, note);
+        }}
+        title="Fill in &quot;Contacted, pending payment&quot;"
+        className="shrink-0 whitespace-nowrap rounded-full border border-card-border px-2 py-1 text-xs text-muted hover:text-foreground"
+      >
+        Contacted
+      </button>
+    </div>
+  );
+}
+
 function RegistrationsPanel({
   registrations,
   loading,
   batch,
   onTogglePaid,
+  onSaveNote,
+  onDelete,
 }: {
   registrations: Registration[];
   loading: boolean;
   batch: string;
   onTogglePaid: (id: string, paid: boolean) => void;
+  onSaveNote: (id: string, note: string) => void;
+  onDelete: (id: string) => void;
 }) {
   const paidCount = registrations.filter((r) => r.paid).length;
+
+  function remove(r: Registration) {
+    if (confirm(`Delete ${r.name}'s registration? This can't be undone.`)) {
+      onDelete(r.id);
+    }
+  }
 
   return (
     <section className="mb-8">
@@ -699,10 +887,28 @@ function RegistrationsPanel({
                   </a>
                 )}
               </div>
+              {r.paymentProofUrl && (
+                <div className="flex flex-col items-center gap-0.5">
+                  <a href={r.paymentProofUrl} target="_blank" rel="noreferrer">
+                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-background">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={r.paymentProofUrl}
+                        alt={`${r.name} payment proof`}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  </a>
+                  <span className="text-[9px] uppercase tracking-wide text-muted">
+                    Proof
+                  </span>
+                </div>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="font-medium">{r.name}</p>
                 <ContactLink contact={r.contact} />
                 {r.messenger && <MessengerLink messenger={r.messenger} />}
+                <RegistrationNote registration={r} onSave={onSaveNote} />
               </div>
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
@@ -732,6 +938,12 @@ function RegistrationsPanel({
                 }`}
               >
                 {r.paid ? "Mark unpaid" : "Confirm payment"}
+              </button>
+              <button
+                onClick={() => remove(r)}
+                className="rounded-full border border-red-500/40 px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-500/10"
+              >
+                Delete
               </button>
             </div>
           ))}

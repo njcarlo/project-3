@@ -6,6 +6,7 @@ import { listAllBatches } from "@/lib/leaderboardConfig";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const { activeBatch, batches, closedBatches } = await listAllBatches();
-  return NextResponse.json({ activeBatch, batches, closedBatches });
+  const { activeBatch, batches, closedBatches, paymentQrUrl } =
+    await listAllBatches();
+  return NextResponse.json({ activeBatch, batches, closedBatches, paymentQrUrl });
 }

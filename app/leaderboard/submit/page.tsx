@@ -4,12 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import type { User } from "firebase/auth";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { MAX_MEDIA_BYTES, MAX_SELFIE_BYTES, MAX_QR_BYTES } from "@/lib/leaderboard";
+import {
+  MAX_MEDIA_BYTES,
+  MAX_SELFIE_BYTES,
+  MAX_QR_BYTES,
+  SUBMISSIONS_OPEN,
+} from "@/lib/leaderboard";
 import { compressImage } from "@/lib/imageCompression";
 import { SubmissionGuide } from "@/components/SubmissionGuide";
 
 export default function LeaderboardSubmitPage() {
   const { user, loading } = useAuth();
+
+  if (!SUBMISSIONS_OPEN) return <Walkthrough />;
 
   if (loading) return null;
 
@@ -43,6 +50,76 @@ export default function LeaderboardSubmitPage() {
   }
 
   return <SubmitForm user={user} />;
+}
+
+// Explains how submitting will work once it opens, without exposing the
+// actual upload form yet.
+function Walkthrough() {
+  const steps = [
+    {
+      title: "Register",
+      body: "Sign up with your name, a contact, and your Trainer ID QR at /tournament/register. This also creates your own username + password login.",
+    },
+    {
+      title: "Get your fee confirmed",
+      body: "Message the organizer on Facebook to arrange payment. Once confirmed, you're cleared to submit.",
+    },
+    {
+      title: "Log in and submit your run",
+      body: "Log in with your player account, then upload a photo/video of your run and/or a selfie (at least one) so we can verify it's really you.",
+    },
+    {
+      title: "Admin reviews and scores it",
+      body: "An admin checks your entry and sets your score. Only your best score counts — you can resubmit anytime to beat it.",
+    },
+    {
+      title: "Climb the board",
+      body: "Scores rank live on the public leaderboard, updating instantly as the admin scores entries.",
+    },
+  ];
+
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
+      <h1 className="mb-2 text-3xl font-bold tracking-tight">
+        Submitting isn&apos;t open yet
+      </h1>
+      <p className="mb-8 text-sm text-muted">
+        Here&apos;s how it&apos;ll work once entries open. You can register
+        now to get your account ready.
+      </p>
+
+      <ol className="mb-6 flex flex-col gap-4">
+        {steps.map((s, i) => (
+          <li key={s.title} className="card flex gap-4 rounded-xl p-4">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
+              {i + 1}
+            </div>
+            <div>
+              <p className="font-semibold">{s.title}</p>
+              <p className="mt-1 text-sm text-muted">{s.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <SubmissionGuide />
+
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Link
+          href="/tournament/register"
+          className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground"
+        >
+          Register now
+        </Link>
+        <Link
+          href="/leaderboard"
+          className="rounded-full border border-card-border px-5 py-2.5 text-sm font-medium hover:bg-card-border/30"
+        >
+          View leaderboard
+        </Link>
+      </div>
+    </div>
+  );
 }
 
 function SubmitForm({ user }: { user: User }) {

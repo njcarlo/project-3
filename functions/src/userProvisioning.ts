@@ -19,6 +19,7 @@ export const provisionUserProfile = functions.auth
         showcaseItemIds: [],
         stats: { totalItems: 0, totalValue: 0 },
         portfolioPublic: true,
+        contributor: false,
         createdAt: FieldValue.serverTimestamp(),
       });
   });

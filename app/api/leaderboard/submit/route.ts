@@ -6,6 +6,7 @@ import {
   MAX_MEDIA_BYTES,
   MAX_SELFIE_BYTES,
   MAX_QR_BYTES,
+  SUBMISSIONS_OPEN,
   type LeaderboardMediaType,
 } from "@/lib/leaderboard";
 import { uploadLeaderboardFile } from "@/lib/leaderboardStorage";
@@ -22,6 +23,13 @@ function mediaTypeFor(file: File): LeaderboardMediaType | null {
 }
 
 export async function POST(req: NextRequest) {
+  if (!SUBMISSIONS_OPEN) {
+    return NextResponse.json(
+      { error: "Submissions aren't open yet." },
+      { status: 403 }
+    );
+  }
+
   const decoded = await verifyIdToken(req.headers.get("authorization"));
   if (!decoded) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

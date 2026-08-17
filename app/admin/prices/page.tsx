@@ -16,14 +16,14 @@ import { db } from "@/lib/firebase/client";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import type { CatalogItem, PriceSubmission, UserProfile } from "@/lib/types";
 
-type Filter = "all" | "flagged" | "active";
+type Filter = "pending" | "active" | "excluded" | "all";
 
 export default function AdminPricesPage() {
   const { user, loading, isAdmin } = useAuth();
   const [submissions, setSubmissions] = useState<PriceSubmission[] | null>(null);
   const [catalogNames, setCatalogNames] = useState<Record<string, CatalogItem>>({});
   const [userNames, setUserNames] = useState<Record<string, string>>({});
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>("pending");
 
   useEffect(() => {
     if (!user || !isAdmin) return;
@@ -73,17 +73,17 @@ export default function AdminPricesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAdmin]);
 
-  async function flagAsFake(id: string) {
-    await updateDoc(doc(db, "priceSubmissions", id), {
-      flagged: true,
-      status: "excluded",
-    });
-  }
-
   async function approve(id: string) {
     await updateDoc(doc(db, "priceSubmissions", id), {
       flagged: false,
       status: "active",
+    });
+  }
+
+  async function reject(id: string) {
+    await updateDoc(doc(db, "priceSubmissions", id), {
+      flagged: true,
+      status: "excluded",
     });
   }
 
@@ -101,10 +101,10 @@ export default function AdminPricesPage() {
     );
   }
 
+  const pendingCount = (submissions ?? []).filter((s) => s.status === "pending").length;
   const filtered = (submissions ?? []).filter((s) => {
-    if (filter === "flagged") return s.flagged;
-    if (filter === "active") return s.status === "active" && !s.flagged;
-    return true;
+    if (filter === "all") return true;
+    return s.status === filter;
   });
 
   return (
@@ -113,12 +113,14 @@ export default function AdminPricesPage() {
         Price submissions
       </h1>
       <p className="mb-6 text-sm text-muted">
-        Review community price submissions. Flagging a submission excludes it
-        from the item&apos;s price aggregate.
+        Approve or reject community price submissions. Contributors&apos;
+        submissions auto-approve and never appear in the pending queue.
       </p>
 
-      <div className="mb-4 flex gap-2 text-sm">
-        {(["all", "flagged", "active"] as Filter[]).map((f) => (
+      <BatchThresholdTool />
+
+      <div className="mb-4 mt-8 flex gap-2 text-sm">
+        {(["pending", "active", "excluded", "all"] as Filter[]).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
@@ -129,6 +131,7 @@ export default function AdminPricesPage() {
             }`}
           >
             {f}
+            {f === "pending" && pendingCount > 0 ? ` (${pendingCount})` : ""}
           </button>
         ))}
       </div>
@@ -173,27 +176,34 @@ export default function AdminPricesPage() {
 
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                    s.flagged
-                      ? "bg-red-500/15 text-red-500"
-                      : "bg-emerald-500/15 text-emerald-500"
+                    s.status === "active"
+                      ? "bg-emerald-500/15 text-emerald-500"
+                      : s.status === "pending"
+                        ? "bg-amber-500/15 text-amber-500"
+                        : "bg-red-500/15 text-red-500"
                   }`}
                 >
-                  {s.flagged ? "Flagged" : "Active"}
+                  {s.status === "active"
+                    ? "Active"
+                    : s.status === "pending"
+                      ? "Pending"
+                      : "Excluded"}
                 </span>
 
-                {s.flagged ? (
+                {s.status !== "active" && (
                   <button
                     onClick={() => approve(s.id)}
-                    className="rounded-full border border-card-border px-3 py-1 text-xs font-medium hover:bg-background"
+                    className="rounded-full bg-emerald-500 px-3 py-1 text-xs font-medium text-white"
                   >
                     Approve
                   </button>
-                ) : (
+                )}
+                {s.status !== "excluded" && (
                   <button
-                    onClick={() => flagAsFake(s.id)}
-                    className="rounded-full bg-red-500 px-3 py-1 text-xs font-medium text-white"
+                    onClick={() => reject(s.id)}
+                    className="rounded-full border border-card-border px-3 py-1 text-xs font-medium hover:bg-background"
                   >
-                    Flag as fake
+                    {s.status === "pending" ? "Reject" : "Flag as fake"}
                   </button>
                 )}
               </div>
@@ -201,6 +211,92 @@ export default function AdminPricesPage() {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+// Bulk-set a baseline price for every approved catalog item in a rarity
+// group at once — useful for common tags (white 2-4★) that rarely get
+// enough individual community submissions to form a real average.
+const THRESHOLD_GROUPS: { label: string; rarities: string[] }[] = [
+  { label: "White ★2 – ★4", rarities: ["white-2", "white-3", "white-4"] },
+  { label: "Star ★5", rarities: ["white-5"] },
+];
+
+function BatchThresholdTool() {
+  const { user } = useAuth();
+  const [prices, setPrices] = useState<Record<string, string>>({});
+  const [busyGroup, setBusyGroup] = useState<string | null>(null);
+  const [result, setResult] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function apply(group: (typeof THRESHOLD_GROUPS)[number]) {
+    const priceNum = Number(prices[group.label]);
+    if (!user || !priceNum || priceNum <= 0) return;
+
+    setBusyGroup(group.label);
+    setError(null);
+    setResult(null);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch("/api/admin/prices/batch-set", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ rarities: group.rarities, price: priceNum }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Failed to apply.");
+      setResult(`Set ₱${priceNum.toLocaleString()} as the baseline for ${data.updated} ${group.label} tag(s).`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to apply.");
+    } finally {
+      setBusyGroup(null);
+    }
+  }
+
+  return (
+    <div className="card rounded-xl p-4">
+      <h2 className="mb-1 text-sm font-semibold">Batch threshold price</h2>
+      <p className="mb-4 text-xs text-muted">
+        Sets a baseline price across every approved tag in a rarity group at
+        once (counts as one admin submission per tag — real submissions still
+        average in normally, and re-applying updates the same baseline
+        instead of stacking).
+      </p>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        {THRESHOLD_GROUPS.map((group) => (
+          <div
+            key={group.label}
+            className="flex flex-1 items-center gap-2 rounded-lg border border-card-border p-2"
+          >
+            <span className="min-w-0 flex-1 text-sm font-medium">
+              {group.label}
+            </span>
+            <input
+              type="number"
+              min={1}
+              placeholder="₱ price"
+              value={prices[group.label] ?? ""}
+              onChange={(e) =>
+                setPrices((p) => ({ ...p, [group.label]: e.target.value }))
+              }
+              className="w-24 rounded-lg border border-card-border bg-background px-2 py-1 text-sm"
+            />
+            <button
+              onClick={() => apply(group)}
+              disabled={busyGroup === group.label || !prices[group.label]}
+              className="shrink-0 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground disabled:opacity-50"
+            >
+              {busyGroup === group.label ? "Applying..." : "Apply"}
+            </button>
+          </div>
+        ))}
+      </div>
+      {result && <p className="mt-3 text-xs text-emerald-500">{result}</p>}
+      {error && <p className="mt-3 text-xs text-red-500">{error}</p>}
     </div>
   );
 }

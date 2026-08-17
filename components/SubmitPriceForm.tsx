@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import type { PriceSubmissionType } from "@/lib/types";
 
 export function SubmitPriceForm({ catalogItemId }: { catalogItemId: string }) {
-  const { user } = useAuth();
+  const { user, isAdmin, isContributor } = useAuth();
   const [open, setOpen] = useState(false);
   const [price, setPrice] = useState("");
   const [type, setType] = useState<PriceSubmissionType>("paid");
@@ -16,6 +16,8 @@ export function SubmitPriceForm({ catalogItemId }: { catalogItemId: string }) {
   const [done, setDone] = useState(false);
 
   if (!user) return null;
+
+  const autoApproves = isAdmin || isContributor;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +35,7 @@ export function SubmitPriceForm({ catalogItemId }: { catalogItemId: string }) {
         sourceNote,
         submittedAt: serverTimestamp(),
         flagged: false,
-        status: "active",
+        status: autoApproves ? "active" : "pending",
       });
       setDone(true);
       setOpen(false);
@@ -46,12 +48,19 @@ export function SubmitPriceForm({ catalogItemId }: { catalogItemId: string }) {
 
   if (!open) {
     return (
-      <button
-        onClick={() => setOpen(true)}
-        className="rounded-full border border-card-border px-4 py-2 text-sm font-medium hover:bg-card"
-      >
-        {done ? "Submit another price" : "Submit a price"}
-      </button>
+      <div className="flex flex-col items-start gap-1">
+        <button
+          onClick={() => setOpen(true)}
+          className="rounded-full border border-card-border px-4 py-2 text-sm font-medium hover:bg-card"
+        >
+          {done ? "Submit another price" : "Submit a price"}
+        </button>
+        {done && !autoApproves && (
+          <span className="text-xs text-muted">
+            Thanks — it&apos;s pending admin review before it counts.
+          </span>
+        )}
+      </div>
     );
   }
 
@@ -84,6 +93,11 @@ export function SubmitPriceForm({ catalogItemId }: { catalogItemId: string }) {
         onChange={(e) => setSourceNote(e.target.value)}
         className="rounded-lg border border-card-border bg-background px-2 py-1"
       />
+      <p className="text-xs text-muted">
+        {autoApproves
+          ? "As a contributor, this counts immediately."
+          : "This goes to admin review before it counts toward the average."}
+      </p>
       <div className="flex gap-2">
         <button
           type="submit"

@@ -23,8 +23,10 @@ export function serializeRegistration(snap: DocumentSnapshot): Registration {
     contact: String(data.contact ?? ""),
     messenger: String(data.messenger ?? ""),
     qrUrl: String(data.qrUrl ?? ""),
+    paymentProofUrl: String(data.paymentProofUrl ?? ""),
     paid: data.paid === true,
     uid: typeof data.uid === "string" && data.uid ? data.uid : null,
+    adminNote: String(data.adminNote ?? ""),
     createdAt: millis(data.createdAt),
   };
 }

@@ -24,6 +24,18 @@ function withSuperstarsFirst(items: CatalogItem[]): CatalogItem[] {
   return [...superstars, ...rest];
 }
 
+function PriceTag({ item }: { item: CatalogItem }) {
+  const avg = item.lastPriceAggregate?.avg;
+  if (avg == null) {
+    return <span className="text-xs text-muted">No price yet</span>;
+  }
+  return (
+    <span className="text-sm font-semibold">
+      ₱{Math.round(avg).toLocaleString()}
+    </span>
+  );
+}
+
 export function CatalogBrowser({ items }: { items: CatalogItem[] }) {
   const [view, setView] = useState<View>("grid");
   const sorted = useMemo(() => withSuperstarsFirst(items), [items]);
@@ -84,6 +96,9 @@ export function CatalogBrowser({ items }: { items: CatalogItem[] }) {
                 </span>
                 <RarityBadge rarity={item.rarity} />
               </div>
+              <div className="mt-1">
+                <PriceTag item={item} />
+              </div>
             </Link>
           ))}
         </div>
@@ -112,6 +127,10 @@ export function CatalogBrowser({ items }: { items: CatalogItem[] }) {
                 <p className="text-xs text-muted">
                   {item.seriesName.replace("Mezastar ", "")} · #{item.number}
                 </p>
+              </div>
+
+              <div className="w-20 shrink-0 text-right">
+                <PriceTag item={item} />
               </div>
 
               <RarityBadge rarity={item.rarity} />

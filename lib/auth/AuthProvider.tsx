@@ -18,12 +18,15 @@ import {
   useMemo,
   useState,
 } from "react";
-import { auth } from "@/lib/firebase/client";
+import { doc, onSnapshot } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase/client";
+import type { UserProfile } from "@/lib/types";
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
+  isContributor: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
@@ -36,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isContributor, setIsContributor] = useState(false);
 
   useEffect(() => {
     // Complete any redirect-based sign-in (used as a popup fallback, e.g. on
@@ -54,11 +58,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  // Live-subscribe to the signed-in user's own profile for their
+  // admin-controlled contributor flag (a Firestore field, not a claim).
+  useEffect(() => {
+    if (!user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsContributor(false);
+      return;
+    }
+    return onSnapshot(doc(db, "users", user.uid), (snap) => {
+      const profile = snap.data() as UserProfile | undefined;
+      setIsContributor(profile?.contributor === true);
+    });
+  }, [user]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
       loading,
       isAdmin,
+      isContributor,
       signInWithGoogle: async () => {
         const provider = new GoogleAuthProvider();
         // Always let the user choose which Google account to use.
@@ -95,7 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await firebaseSignOut(auth);
       },
     }),
-    [user, loading, isAdmin]
+    [user, loading, isAdmin, isContributor]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

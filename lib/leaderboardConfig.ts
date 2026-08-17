@@ -11,6 +11,9 @@ export interface LeaderboardConfig {
   batches: string[];
   // Batches that are closed (no longer accepting entries).
   closedBatches: string[];
+  // Admin's payment QR code (e.g. GCash/bank InstaPay), shown to registrants
+  // so they can pay directly instead of messaging the organizer.
+  paymentQrUrl: string | null;
 }
 
 function configRef() {
@@ -36,7 +39,11 @@ export async function getLeaderboardConfig(): Promise<LeaderboardConfig> {
     data && Array.isArray(data.closedBatches)
       ? data.closedBatches.map(String)
       : [];
-  return { activeBatch, batches, closedBatches };
+  const paymentQrUrl =
+    data && typeof data.paymentQrUrl === "string" && data.paymentQrUrl
+      ? data.paymentQrUrl
+      : null;
+  return { activeBatch, batches, closedBatches, paymentQrUrl };
 }
 
 /**
@@ -45,11 +52,17 @@ export async function getLeaderboardConfig(): Promise<LeaderboardConfig> {
  * full-collection scan — to keep Firestore reads minimal.
  */
 export async function listAllBatches(): Promise<LeaderboardConfig> {
-  const { activeBatch, batches, closedBatches } = await getLeaderboardConfig();
+  const { activeBatch, batches, closedBatches, paymentQrUrl } =
+    await getLeaderboardConfig();
   const rest = batches
     .filter((b) => b !== activeBatch)
     .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-  return { activeBatch, batches: [activeBatch, ...rest], closedBatches };
+  return {
+    activeBatch,
+    batches: [activeBatch, ...rest],
+    closedBatches,
+    paymentQrUrl,
+  };
 }
 
 /** Opens or closes a batch for new entries. */
@@ -84,5 +97,13 @@ export async function setActiveBatch(name: string): Promise<LeaderboardConfig> {
     { activeBatch: clean, batches: FieldValue.arrayUnion(clean) },
     { merge: true }
   );
+  return getLeaderboardConfig();
+}
+
+/** Sets (or clears, with null) the admin's payment QR image URL. */
+export async function setPaymentQrUrl(
+  url: string | null
+): Promise<LeaderboardConfig> {
+  await configRef().set({ paymentQrUrl: url }, { merge: true });
   return getLeaderboardConfig();
 }
