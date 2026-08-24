@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { signInWithCustomToken } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
-import { MAX_QR_BYTES } from "@/lib/leaderboard";
+import { MAX_QR_BYTES, REGISTRATION_OPEN } from "@/lib/leaderboard";
 import { isValidUsername } from "@/lib/leaderboardUsername";
 import { compressImage } from "@/lib/imageCompression";
 
@@ -100,6 +100,43 @@ function PaymentSection({ paymentQrUrl }: { paymentQrUrl: string | null }) {
 }
 
 export default function RegisterPage() {
+  if (!REGISTRATION_OPEN) return <RegistrationClosed />;
+  return <RegisterForm />;
+}
+
+function RegistrationClosed() {
+  return (
+    <div className="mx-auto max-w-lg px-4 py-16 text-center sm:py-24">
+      <div className="card rounded-xl p-8">
+        <h1 className="mb-2 text-2xl font-bold tracking-tight">
+          Registration is closed
+        </h1>
+        <p className="mb-6 text-muted">
+          Registration isn&apos;t open right now. Check back soon or contact the
+          organizer.
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+          <Link
+            href="/leaderboard"
+            className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-accent-foreground"
+          >
+            View leaderboard
+          </Link>
+          <a
+            href={FACEBOOK_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-card-border px-5 py-2 text-sm font-medium hover:bg-card-border/30"
+          >
+            Contact organizer
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RegisterForm() {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [messenger, setMessenger] = useState("");
