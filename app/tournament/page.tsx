@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { REGISTRATION_OPEN } from "@/lib/leaderboard";
 
 interface TournamentSummary {
   batch: string;
@@ -61,12 +62,14 @@ export default function TournamentLandingPage() {
           )}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link
-            href="/tournament/register"
-            className="rounded-full bg-accent px-6 py-2.5 font-medium text-accent-foreground"
-          >
-            Register
-          </Link>
+          {REGISTRATION_OPEN && (
+            <Link
+              href="/tournament/register"
+              className="rounded-full bg-accent px-6 py-2.5 font-medium text-accent-foreground"
+            >
+              Register
+            </Link>
+          )}
           <Link
             href="/leaderboard"
             className="rounded-full border border-card-border px-6 py-2.5 font-medium hover:bg-card-border/30"

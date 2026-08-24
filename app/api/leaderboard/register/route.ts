@@ -4,6 +4,7 @@ import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import {
   LEADERBOARD_REGISTRATIONS_COLLECTION,
   MAX_QR_BYTES,
+  REGISTRATION_OPEN,
 } from "@/lib/leaderboard";
 import { uploadLeaderboardFile } from "@/lib/leaderboardStorage";
 import { getLeaderboardConfig } from "@/lib/leaderboardConfig";
@@ -13,6 +14,13 @@ export const maxDuration = 60;
 
 // Public: register a player for the active tournament (name + contact + QR).
 export async function POST(req: NextRequest) {
+  if (!REGISTRATION_OPEN) {
+    return NextResponse.json(
+      { error: "Registration isn't open right now." },
+      { status: 403 }
+    );
+  }
+
   let form: FormData;
   try {
     form = await req.formData();

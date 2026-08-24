@@ -14,6 +14,10 @@ export type LeaderboardStatus = "pending" | "scored";
 // Flip to true when the tournament is ready to accept entries.
 export const SUBMISSIONS_OPEN = false;
 
+// Kill switch for new registrations (both the /tournament/register page and
+// the API route it posts to). Flip to true to reopen registration.
+export const REGISTRATION_OPEN = false;
+
 // Each tournament run is a "batch". New submissions are tagged with the
 // currently active batch; the leaderboard can be viewed per batch.
 export const DEFAULT_BATCH = "Batch 1";
